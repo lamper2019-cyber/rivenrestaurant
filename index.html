@@ -1,0 +1,3754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#111111">
+<title>RIVEN Restaurant Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+  --bg: #111111;
+  --card: #1E1E1E;
+  --card-hover: #252525;
+  --gold: #C4A265;
+  --gold-dim: rgba(196, 162, 101, 0.15);
+  --text: #F5F0EB;
+  --text-muted: #8A8580;
+  --green: #6B8F71;
+  --green-bg: rgba(107, 143, 113, 0.12);
+  --red: #B85C5C;
+  --red-bg: rgba(184, 92, 92, 0.10);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+}
+
+body { position: relative; }
+
+.app {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ---- Main Screen ---- */
+.screen-main {
+  min-height: 100vh;
+  padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bottom) + 90px);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.35s ease;
+  will-change: transform, opacity;
+}
+
+.screen-main.pushed {
+  transform: translateX(-30%);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ---- Brand Header ---- */
+.brand {
+  text-align: center;
+  padding: 20px 0 8px;
+}
+
+.brand h1 {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 2rem;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  font-weight: 400;
+}
+
+.brand p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.brand .tagline {
+  font-size: 0.95rem;
+  color: var(--gold);
+  opacity: 0.85;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* ---- Search ---- */
+.search-wrap {
+  position: relative;
+  margin: 20px 0 14px;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 14px 14px 14px 42px;
+  background: var(--card);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { border-color: var(--gold); }
+
+/* ---- Help Me Decide Card ---- */
+.decide-card {
+  background: var(--card);
+  border: 1px solid rgba(196, 162, 101, 0.25);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 0 0 24px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  user-select: none;
+}
+
+.decide-card:active {
+  transform: scale(0.98);
+  background: var(--card-hover);
+}
+
+.decide-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.decide-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--gold-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.decide-icon svg {
+  width: 22px;
+  height: 22px;
+  color: var(--gold);
+}
+
+.decide-card-top h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.decide-card p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.decide-card .decide-arrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.decide-card .decide-arrow svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---- Quick Filter Pills ---- */
+.quick-filters {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 0 18px;
+  margin-top: 4px;
+}
+.quick-filters::-webkit-scrollbar { display: none; }
+
+.qf-pill {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 40px;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  white-space: nowrap;
+  user-select: none;
+}
+.qf-pill:active {
+  transform: scale(0.95);
+  background: var(--card-hover);
+  border-color: var(--gold);
+}
+.qf-pill .qf-icon { font-size: 1rem; line-height: 1; }
+
+/* ---- Kid Order Row (With Kids mode) ---- */
+.kid-order-row {
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.18);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.kid-order-row .kid-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1.3; }
+.kid-order-row .kid-text { flex: 1; }
+.kid-order-row .kid-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(167, 139, 250, 0.9); margin-bottom: 3px; }
+.kid-order-row .kid-order-name { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+
+/* ---- Location Bar ---- */
+.location-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--card);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  margin-top: 2px;
+}
+.location-bar .loc-icon { font-size: 0.95rem; line-height: 1; }
+.location-bar .loc-city {
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.location-bar .loc-sub {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.location-bar .loc-change {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gold);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.location-bar .loc-change:active {
+  background: rgba(196, 162, 101, 0.1);
+}
+
+/* ---- Price Badge (Quick & Cheap mode) ---- */
+.price-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.result-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+/* ---- Restaurant Grid ---- */
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.card:active {
+  transform: scale(0.97);
+  background: var(--card-hover);
+}
+
+.card-emoji { font-size: 1.6rem; line-height: 1; }
+.card-name { font-size: 0.95rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+.card-category { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ---- Detail Screen ---- */
+.screen-detail {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--bg);
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 0 calc(var(--safe-bottom) + 90px);
+}
+
+.screen-detail.active { transform: translateX(0); }
+
+.detail-header {
+  position: sticky;
+  top: 0; z-index: 10;
+  background: rgba(17, 17, 17, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: calc(var(--safe-top) + 12px) 16px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--card);
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.back-btn:active { background: var(--card-hover); }
+.back-btn svg { width: 20px; height: 20px; }
+
+.detail-title-area { flex: 1; min-width: 0; }
+.detail-title { font-size: 1.15rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.detail-category { font-size: 0.75rem; color: var(--text-muted); }
+.detail-body { padding: 20px 16px; }
+
+/* ---- Order / Skip Sections ---- */
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.section-heading .dot { width: 8px; height: 8px; border-radius: 50%; }
+.section-heading .dot.green { background: var(--green); }
+.section-heading .dot.red { background: var(--red); }
+.section-heading h2 { font-size: 1rem; font-weight: 700; letter-spacing: 0.02em; }
+
+.order-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.order-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.order-item-name { font-size: 0.95rem; font-weight: 600; }
+
+.protein-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--gold-dim);
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.order-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 10px; }
+
+.coach-tip {
+  background: var(--green-bg);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.coach-tip svg { width: 16px; height: 16px; color: var(--green); flex-shrink: 0; margin-top: 1px; }
+.coach-tip p { font-size: 0.8rem; color: var(--green); line-height: 1.45; }
+
+.skip-section { margin-top: 28px; }
+
+.skip-card {
+  background: var(--red-bg);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.skip-card .x-icon { color: var(--red); font-weight: 700; font-size: 0.85rem; flex-shrink: 0; margin-top: 1px; }
+.skip-card .skip-text { flex: 1; }
+.skip-card .skip-name { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.skip-card .skip-reason { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+
+/* ---- Decision Flow (Full Screen) ---- */
+.screen-decide {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--bg);
+  z-index: 150;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-decide.active { transform: translateY(0); }
+
+.decide-header {
+  padding: calc(var(--safe-top) + 14px) 16px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.decide-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--card);
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.decide-close:active { background: var(--card-hover); }
+.decide-close svg { width: 20px; height: 20px; }
+
+.decide-header-text {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+/* Progress dots */
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px 0;
+  flex-shrink: 0;
+}
+
+.progress-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  transition: background 0.3s, width 0.3s;
+}
+
+.progress-dot.active {
+  background: var(--gold);
+  width: 24px;
+  border-radius: 4px;
+}
+
+.progress-dot.done { background: var(--gold); }
+
+/* Step content */
+.decide-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 24px 20px calc(var(--safe-bottom) + 24px);
+}
+
+.step-question {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+
+.step-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.step-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.step-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 22px 12px;
+  background: var(--card);
+  border: 1.5px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.step-option:active { transform: scale(0.96); }
+
+.step-option .opt-emoji {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.step-option .opt-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.step-option .opt-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Time options are single column */
+.step-options.single-col {
+  grid-template-columns: 1fr;
+  max-width: 320px;
+}
+
+.step-options.single-col .step-option {
+  flex-direction: row;
+  gap: 12px;
+  padding: 18px 20px;
+  text-align: left;
+}
+
+.step-options.single-col .opt-emoji {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.step-options.single-col .opt-text {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Quick Pick Result Screen ---- */
+.result-wrap {
+  text-align: center;
+  max-width: 400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.result-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.result-restaurant {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.8rem;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+
+.result-category {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.result-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.result-card .order-item-name { margin-bottom: 6px; font-size: 1.05rem; }
+.result-card .protein-badge { margin-bottom: 12px; display: inline-flex; }
+.result-card .order-desc { margin-bottom: 12px; }
+
+.result-done-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--gold);
+  color: #111;
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.result-done-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+.result-alt-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  margin-top: 12px;
+  padding: 8px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.result-alt-btn:active { color: var(--text); }
+
+/* Alt options */
+.alt-section {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.alt-section .alt-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.alt-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.alt-card:active { background: rgba(255,255,255,0.06); }
+
+.alt-card-info { flex: 1; }
+
+.alt-card-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.alt-card-item {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.alt-card .protein-badge {
+  font-size: 0.72rem;
+  padding: 3px 8px;
+}
+
+/* ---- CTA Footer ---- */
+.cta-footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 90;
+  padding: 12px 16px calc(var(--safe-bottom) + 12px);
+  background: linear-gradient(to top, var(--bg) 60%, transparent);
+}
+
+.cta-btn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: var(--gold);
+  color: #111;
+  text-align: center;
+  text-decoration: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.cta-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+@media (min-width: 500px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 700px) {
+  .grid { grid-template-columns: repeat(4, 1fr); }
+  .screen-main, .detail-body { max-width: 600px; margin-left: auto; margin-right: auto; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- Main Screen -->
+  <div class="screen-main" id="screenMain">
+    <div class="brand">
+      <h1>RIVEN</h1>
+      <p>Restaurant Guide</p>
+      <p class="tagline">Pick your spot. We'll tell you what to order.</p>
+    </div>
+
+    <!-- Path 1: Search -->
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search restaurants...">
+    </div>
+
+    <!-- Path 2: Help Me Decide -->
+    <div class="decide-card" id="decideCard">
+      <div class="decide-card-top">
+        <div class="decide-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h2>What should I eat?</h2>
+      </div>
+      <p>Hungry and can't decide? Answer 3 quick questions and we'll tell you exactly where to go and what to order.</p>
+      <div class="decide-arrow">
+        Help me decide
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+    </div>
+
+    <div class="location-bar" id="locationBar">
+      <span class="loc-icon">📍</span>
+      <span class="loc-city" id="locCity">Anywhere <span class="loc-sub">— Chains Only</span></span>
+      <button class="loc-change" id="locChange">Near Montgomery?</button>
+    </div>
+
+    <div class="quick-filters" id="quickFilters">
+      <button class="qf-pill" data-mode="drivethru"><span class="qf-icon">🚗</span> Drive-Thru</button>
+      <button class="qf-pill" data-mode="datenight"><span class="qf-icon">💃</span> Date Night</button>
+      <button class="qf-pill" data-mode="withkids"><span class="qf-icon">👶</span> With Kids</button>
+      <button class="qf-pill" data-mode="breakfast"><span class="qf-icon">🌅</span> Breakfast</button>
+      <button class="qf-pill" data-mode="cheapprotein"><span class="qf-icon">💰</span> Quick & Cheap</button>
+    </div>
+
+    <p class="section-label">All Restaurants</p>
+    <div class="grid" id="restaurantGrid"></div>
+  </div>
+
+  <!-- Detail Screen -->
+  <div class="screen-detail" id="screenDetail">
+    <div class="detail-header">
+      <button class="back-btn" id="backBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="detail-title-area">
+        <div class="detail-title" id="detailTitle"></div>
+        <div class="detail-category" id="detailCategory"></div>
+      </div>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+
+  <!-- Decision Flow Screen -->
+  <div class="screen-decide" id="screenDecide">
+    <div class="decide-header">
+      <button class="decide-close" id="decideClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+      <span class="decide-header-text">Quick Pick</span>
+    </div>
+    <div class="progress-dots" id="progressDots"></div>
+    <div class="decide-body" id="decideBody"></div>
+  </div>
+
+  <!-- CTA Footer -->
+  <div class="cta-footer">
+    <a href="https://www.rivenprogram.com" target="_blank" rel="noopener" class="cta-btn">Get the Full RIVEN Program</a>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// RESTAURANT DATA
+// ============================================================
+const restaurants = [
+  {
+    id: "chipotle",
+    name: "Chipotle",
+    emoji: "🌯",
+    category: "Mexican",
+    vibe: "mexican",
+    mealType: ["quickbite", "latenight"],
+    time: "under10",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Chicken Burrito Bowl",
+        protein: "53g",
+        desc: "Double chicken, black beans, fajita veggies, fresh tomato salsa, and lettuce. Skip the rice or go half portion.",
+        tip: "Ask for double chicken — it's only about $3.50 extra and nearly doubles your protein.",
+        price: 10.5,
+        kidOrder: "Kids Quesadilla"
+      },
+      {
+        name: "Steak Salad Bowl",
+        protein: "46g",
+        desc: "Steak over romaine, black beans, fajita veggies, green salsa. Add guac for healthy fats.",
+        tip: "Get the salad base instead of rice — you won't miss it with all the toppings.",
+        price: 12.5,
+        kidOrder: "Kids Quesadilla"
+      },
+      {
+        name: "Chicken Tacos (3 Crispy)",
+        protein: "40g",
+        desc: "Three crispy corn shell tacos with chicken, pico, and lettuce. Simple and solid.",
+        tip: "Corn shells have less calories than flour tortillas. Small swap, big win.",
+        price: 9.5,
+        kidOrder: "Kids Quesadilla"
+      }
+    ],
+    skip: [
+      { name: "Queso Blanco", reason: "220 calories of liquid cheese with almost zero protein. Save it." },
+      { name: "Chips & Guac", reason: "The guac is fine alone, but the chips add 500+ empty calories fast." },
+      { name: "Sofritas Bowl", reason: "Tofu crumbles sound healthy but give you half the protein of chicken." },
+      { name: "Flour Tortilla (Burrito)", reason: "Adds 320 calories just from the wrap. Bowl gives you more food for less." }
+    ]
+  },
+  {
+    id: "chickfila",
+    name: "Chick-fil-A",
+    emoji: "🐔",
+    category: "Chicken",
+    vibe: "chicken",
+    mealType: ["quickbite", "breakfast"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Nuggets (12-count)",
+        protein: "38g",
+        desc: "12 grilled nuggets with your choice of sauce. Pair with a side salad for a full meal.",
+        tip: "The grilled nuggets have HALF the calories of the breaded ones. Same satisfaction.",
+        price: 8.49,
+        kidOrder: "Grilled Nuggets Kids Meal (5-ct)"
+      },
+      {
+        name: "Spicy Deluxe Sandwich (Grilled)",
+        protein: "33g",
+        desc: "Grilled spicy chicken, lettuce, tomato, pepper jack on a multigrain bun.",
+        tip: "Skip the buttered bun upgrade — the multigrain bun keeps it cleaner.",
+        price: 7.29,
+        kidOrder: "Grilled Nuggets Kids Meal (5-ct)"
+      },
+      {
+        name: "Egg White Grill (Breakfast)",
+        protein: "25g",
+        desc: "Grilled chicken, egg whites, and American cheese on a multigrain English muffin.",
+        tip: "Best fast food breakfast protein you can get. Order two if you're extra hungry.",
+        price: 5.49,
+        kidOrder: "Grilled Nuggets Kids Meal (5-ct)"
+      }
+    ],
+    skip: [
+      { name: "Chick-fil-A Deluxe (Fried)", reason: "The fried version adds 200+ calories over grilled with no extra protein." },
+      { name: "Mac & Cheese", reason: "Comfort food with 440 calories and only 14g protein. Bad ratio." },
+      { name: "Frosted Lemonade", reason: "64g of sugar in one drink. More sugar than two candy bars." },
+      { name: "Waffle Fries (Large)", reason: "500 calories of fried potatoes. Your protein order doesn't need a sidekick like this." }
+    ]
+  },
+  {
+    id: "zaxbys",
+    name: "Zaxby's",
+    emoji: "🍗",
+    category: "Chicken",
+    vibe: "chicken",
+    mealType: ["quickbite"],
+    time: "10to20",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Chicken Zalad (Garden)",
+        protein: "43g",
+        desc: "Grilled chicken breast on mixed greens with tomatoes, cucumbers, and lite vinaigrette.",
+        tip: "Get the dressing on the side and use half. The lite vinaigrette is already a good pick.",
+        price: 9.99,
+        kidOrder: "Kidz Fingerz Meal"
+      },
+      {
+        name: "5-Piece Chicken Fingerz (Grilled)",
+        protein: "45g",
+        desc: "Five grilled chicken strips. Dip in ranch sparingly or skip the sauce entirely.",
+        tip: "Pair these with celery sticks instead of fries — Zaxby's offers them if you ask.",
+        price: 8.99,
+        kidOrder: "Kidz Fingerz Meal"
+      },
+      {
+        name: "Grilled Chicken Sandwich",
+        protein: "36g",
+        desc: "Grilled chicken, lettuce, tomato on a toasted bun. Keep it simple.",
+        tip: "Ask for no butter on the bun. They butter-grill it by default.",
+        price: 7.49,
+        kidOrder: "Kidz Fingerz Meal"
+      }
+    ],
+    skip: [
+      { name: "Big Zax Snak Meal", reason: "Fried fingers + fries + toast + sauce = 1,200 calories. Nope." },
+      { name: "Fried Chicken Zalad", reason: "The fried chicken version turns a smart salad into a 800-calorie trap." },
+      { name: "Texas Toast", reason: "Butter-soaked white bread adding 150 empty calories per slice." },
+      { name: "Tongue Torch Sauce", reason: "130 calories per serving of sauce. Stick with hot sauce or mustard." }
+    ]
+  },
+  {
+    id: "olivegarden",
+    name: "Olive Garden",
+    emoji: "🍝",
+    category: "Italian",
+    vibe: "italian",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Herb-Grilled Salmon",
+        protein: "51g",
+        desc: "Grilled salmon with garlic herb butter. Get steamed broccoli as your side instead of pasta.",
+        tip: "Ask for the butter sauce on the side. The salmon is flavorful enough without it.",
+        price: 19.99,
+        kidOrder: "Kids Grilled Chicken & Broccoli"
+      },
+      {
+        name: "Chicken Giardino (Lunch)",
+        protein: "38g",
+        desc: "Grilled chicken with roasted veggies on a bed of fettuccine. Ask for half the pasta.",
+        tip: "Ask them to double the veggies in place of half the pasta. Most servers will do it.",
+        price: 13.99,
+        kidOrder: "Kids Grilled Chicken & Broccoli"
+      },
+      {
+        name: "6 oz Sirloin",
+        protein: "36g",
+        desc: "Grilled sirloin with a side of steamed broccoli. Simple and high protein.",
+        tip: "Add a cup of minestrone soup for extra volume and only 100 calories.",
+        price: 16.99,
+        kidOrder: "Kids Grilled Chicken & Broccoli"
+      }
+    ],
+    skip: [
+      { name: "Unlimited Breadsticks", reason: "140 calories each and zero protein. Three of them equals a whole extra meal." },
+      { name: "Chicken Alfredo", reason: "The alfredo sauce alone is 400+ calories. This dish tops 1,500 total." },
+      { name: "Tour of Italy", reason: "Over 1,500 calories in one plate. A tour you don't want to take." },
+      { name: "Chocolate Brownie Lasagna", reason: "890 calories for dessert. More than most people's entire meal should be." }
+    ]
+  },
+  {
+    id: "applebees",
+    name: "Applebee's",
+    emoji: "🍎",
+    category: "American",
+    vibe: "steak",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Blackened Cajun Salmon",
+        protein: "44g",
+        desc: "Blackened salmon on rice with sauteed veggies. Ask for double veggies instead of rice.",
+        tip: "The blackened seasoning adds tons of flavor with zero calories. Great pick.",
+        price: 16.99,
+        kidOrder: "Kids Grilled Chicken"
+      },
+      {
+        name: "Grilled Chicken Breast",
+        protein: "42g",
+        desc: "Plain grilled chicken breast with two sides. Pick steamed broccoli and a side salad.",
+        tip: "Ask for it with no butter on the grill. Applebee's adds butter by default.",
+        price: 13.99,
+        kidOrder: "Kids Grilled Chicken"
+      },
+      {
+        name: "Top Sirloin (8 oz)",
+        protein: "55g",
+        desc: "Center-cut sirloin, cooked to order. Get it with steamed broccoli and a house salad.",
+        tip: "This is your highest protein option on the entire menu. Go-to order.",
+        price: 17.99,
+        kidOrder: "Kids Grilled Chicken"
+      }
+    ],
+    skip: [
+      { name: "Boneless Wings (Classic)", reason: "Breaded and fried with sugary sauce. Over 1,000 calories for the full order." },
+      { name: "Quesadilla Burger", reason: "1,410 calories. Literally more than most people need in an entire day." },
+      { name: "Crispy Chicken Tender Platter", reason: "Breaded tenders + fries + coleslaw = zero good decisions on one plate." },
+      { name: "Oriental Chicken Salad", reason: "Sounds healthy but the dressing and crispy noodles push it past 1,300 calories." }
+    ]
+  },
+  {
+    id: "wingstop",
+    name: "Wingstop",
+    emoji: "🔥",
+    category: "Wings",
+    vibe: "chicken",
+    mealType: ["quickbite", "latenight"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Plain Wings (10-piece)",
+        protein: "60g",
+        desc: "Classic bone-in wings, plain or with atomic/lemon pepper dry rub. No breading.",
+        tip: "Bone-in wings have more protein per piece than boneless. Always go bone-in.",
+        price: 13.99,
+        kidOrder: "Boneless Wings Kids Meal"
+      },
+      {
+        name: "Lemon Pepper Wings (Bone-In)",
+        protein: "58g",
+        desc: "10-piece bone-in with lemon pepper seasoning. Dry rub means no added sugar from sauces.",
+        tip: "Dry rubs are always better than wet sauces — way less hidden sugar and calories.",
+        price: 13.99,
+        kidOrder: "Boneless Wings Kids Meal"
+      },
+      {
+        name: "Thigh Bites (Plain or Lemon Pepper)",
+        protein: "32g",
+        desc: "Boneless thigh meat bites. Higher fat than breast but still solid protein.",
+        tip: "If they're out of bone-in wings, thigh bites are your best backup option.",
+        price: 8.99,
+        kidOrder: "Boneless Wings Kids Meal"
+      }
+    ],
+    skip: [
+      { name: "Boneless Wings", reason: "They're chicken nuggets with extra breading. Less protein, more carbs." },
+      { name: "Cajun Fried Corn", reason: "Deep fried corn with 500+ calories. Not what you came here for." },
+      { name: "Mango Habanero Wings", reason: "The sauce adds 30g of sugar to your wings. Stick with dry rubs." },
+      { name: "Large Seasoned Fries", reason: "Over 500 calories of starchy filler. Your wings are enough." }
+    ]
+  },
+  {
+    id: "subway",
+    name: "Subway",
+    emoji: "🥖",
+    category: "Sandwiches",
+    vibe: "subs",
+    mealType: ["quickbite"],
+    time: "under10",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Rotisserie Chicken Chopped Salad",
+        protein: "31g",
+        desc: "Rotisserie chicken on a bed of greens with veggies and a drizzle of oil & vinegar.",
+        tip: "Get it chopped — more dressing contact with every bite, so you need less.",
+        price: 8.49,
+        kidOrder: "Kids Turkey Mini Sub"
+      },
+      {
+        name: "Turkey Breast 6-inch (Whole Wheat)",
+        protein: "26g",
+        desc: "Double turkey on 6-inch whole wheat. Load up all veggies, mustard or vinegar for sauce.",
+        tip: "Always ask for double meat. The standard portion is surprisingly thin.",
+        price: 6.99,
+        kidOrder: "Kids Turkey Mini Sub"
+      },
+      {
+        name: "Chicken Breast 6-inch Protein Bowl",
+        protein: "34g",
+        desc: "All the sub fillings in a bowl, no bread. Chicken, all veggies, oil & vinegar.",
+        tip: "Protein bowls cut 200+ calories by skipping the bread. All the flavor stays.",
+        price: 8.99,
+        kidOrder: "Kids Turkey Mini Sub"
+      }
+    ],
+    skip: [
+      { name: "Meatball Marinara", reason: "The meatballs are mostly filler — low protein, high fat and sodium." },
+      { name: "Footlong Anything", reason: "A footlong doubles everything including calories. Stick with 6-inch or bowls." },
+      { name: "Chipotle Southwest Sauce", reason: "100 calories per serving of mayo-based sauce. Use mustard or vinegar instead." },
+      { name: "Cookies", reason: "200+ calories each with zero nutritional upside. You didn't come here for dessert." }
+    ]
+  },
+  {
+    id: "mcdonalds",
+    name: "McDonald's",
+    emoji: "🍟",
+    category: "Burgers",
+    vibe: "burgers",
+    mealType: ["quickbite", "breakfast", "latenight"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "McDouble (No Bun, Plain)",
+        protein: "23g",
+        desc: "Two beef patties with cheese, no bun. Ask for lettuce wrap or eat with a fork.",
+        tip: "Order 2-3 McDoubles no bun for a quick 46-69g protein hit under $8.",
+        price: 3.49,
+        kidOrder: "4-Piece McNuggets Happy Meal"
+      },
+      {
+        name: "Egg McMuffin",
+        protein: "17g",
+        desc: "Canadian bacon, egg, and cheese on an English muffin. Best breakfast ratio here.",
+        tip: "Order two — 34g protein and under 600 calories total. Solid breakfast move.",
+        price: 4.49,
+        kidOrder: "4-Piece McNuggets Happy Meal"
+      },
+      {
+        name: "Grilled Chicken Sandwich",
+        protein: "33g",
+        desc: "Grilled chicken, lettuce, tomato on an artisan roll. Ask for no mayo.",
+        tip: "Skipping the mayo saves you 200 calories and you won't even notice.",
+        price: 5.99,
+        kidOrder: "4-Piece McNuggets Happy Meal"
+      }
+    ],
+    skip: [
+      { name: "Big Mac", reason: "550 calories but only 25g protein. The special sauce and extra bun are the problem." },
+      { name: "Large Fries", reason: "480 calories of fried potato. Your protein order does the work alone." },
+      { name: "McFlurry (Any)", reason: "500-700 calories of ice cream and candy. A full meal's worth of sugar." },
+      { name: "Crispy Chicken Sandwich", reason: "The breading and mayo push this to 600+ calories for only 26g protein." }
+    ]
+  },
+  {
+    id: "crackerbarrel",
+    name: "Cracker Barrel",
+    emoji: "🪵",
+    category: "Southern",
+    vibe: "southern",
+    mealType: ["sitdown", "breakfast"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Chicken Tenderloins",
+        protein: "44g",
+        desc: "Grilled chicken tenderloins with two sides. Pick green beans and turnip greens.",
+        tip: "Their grilled tenderloins are surprisingly good. Skip the country-fried version.",
+        price: 12.99,
+        kidOrder: "Kids Grilled Chicken Tenderloins"
+      },
+      {
+        name: "Lemon Pepper Trout",
+        protein: "38g",
+        desc: "Grilled rainbow trout with lemon pepper seasoning. Get it with steamed veggies.",
+        tip: "Trout is one of the leanest fish options. Great choice when you want variety.",
+        price: 13.99,
+        kidOrder: "Kids Grilled Chicken Tenderloins"
+      },
+      {
+        name: "Sunrise Sampler (Breakfast - Modified)",
+        protein: "35g",
+        desc: "Get the eggs and turkey sausage only. Skip the pancakes, biscuits, and gravy.",
+        tip: "Tell your server: just the eggs and turkey sausage, add a side of fruit.",
+        price: 11.99,
+        kidOrder: "Kids Grilled Chicken Tenderloins"
+      }
+    ],
+    skip: [
+      { name: "Chicken & Dumplings", reason: "Dumplings are just flour and butter soaking in gravy. Low protein comfort food." },
+      { name: "Biscuits & Gravy", reason: "Over 600 calories before you even start your actual meal." },
+      { name: "Country Fried Steak", reason: "Breaded, fried, and smothered in gravy. Over 1,000 calories easy." },
+      { name: "Hashbrown Casserole", reason: "340 calories of cheese, cream, and potato. Zero protein to show for it." }
+    ]
+  },
+  {
+    id: "wafflehouse",
+    name: "Waffle House",
+    emoji: "🧇",
+    category: "Breakfast",
+    vibe: "breakfast",
+    mealType: ["breakfast", "latenight"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Two Eggs + Grilled Chicken + Tomatoes",
+        protein: "42g",
+        desc: "Two eggs any style with grilled chicken breast and sliced tomatoes on the side.",
+        tip: "Waffle House will grill a plain chicken breast if you ask. Not on the menu but they do it.",
+        price: 9.99,
+        kidOrder: "Kids Waffle + Eggs"
+      },
+      {
+        name: "Texas Bacon Cheesesteak Melt (No Toast)",
+        protein: "34g",
+        desc: "Steak, bacon, cheese, grilled onions. Ask for it in a bowl instead of on Texas toast.",
+        tip: "Skip the Texas toast and you save 300 calories without losing any of the good stuff.",
+        price: 8.99,
+        kidOrder: "Kids Waffle + Eggs"
+      },
+      {
+        name: "3-Egg Plate with Turkey Sausage",
+        protein: "30g",
+        desc: "Three scrambled eggs with a side of turkey sausage. Add tomatoes for veggies.",
+        tip: "Turkey sausage has half the fat of regular pork sausage. Always make the swap.",
+        price: 8.49,
+        kidOrder: "Kids Waffle + Eggs"
+      }
+    ],
+    skip: [
+      { name: "Waffle (Classic)", reason: "The irony — the namesake item is pure sugar and starch. 410 calories, 5g protein." },
+      { name: "Hash Browns (Scattered, Smothered, Covered)", reason: "Adding cheese and onions turns a 200-cal side into a 500-cal side." },
+      { name: "Pecan Waffle", reason: "510 calories with 10g of sugar. The pecans don't make it healthy." },
+      { name: "Sausage Biscuit", reason: "A brick of white flour and pork fat. 350 calories, 10g protein. Terrible ratio." }
+    ]
+  },
+  {
+    id: "longhorn",
+    name: "LongHorn Steakhouse",
+    emoji: "🥩",
+    category: "Steak",
+    vibe: "steak",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Renegade Sirloin (8 oz)",
+        protein: "52g",
+        desc: "Seasoned and grilled sirloin. Get steamed broccoli and a side salad.",
+        tip: "Sirloin is leaner than ribeye. You get more protein per calorie with this cut.",
+        price: 17.99,
+        kidOrder: "Kids Grilled Chicken"
+      },
+      {
+        name: "Flo's Filet (6 oz)",
+        protein: "46g",
+        desc: "Center-cut filet mignon. The leanest steak cut on the menu. Pair with asparagus.",
+        tip: "Filet has the best protein-to-fat ratio of any steak. Worth the price.",
+        price: 24.99,
+        kidOrder: "Kids Grilled Chicken"
+      },
+      {
+        name: "Grilled Salmon",
+        protein: "44g",
+        desc: "Simply grilled Atlantic salmon. Get steamed veggies and skip the loaded potato.",
+        tip: "Ask for no butter on top. The salmon is moist enough on its own.",
+        price: 19.99,
+        kidOrder: "Kids Grilled Chicken"
+      }
+    ],
+    skip: [
+      { name: "Wild West Shrimp", reason: "Breaded and fried appetizer. 800+ calories before your actual meal." },
+      { name: "Mac & Cheese (Side)", reason: "380 calories of cheese and pasta. Your steak doesn't need this as a sidekick." },
+      { name: "Steakhouse Burger", reason: "Over 1,000 calories. You're at a steakhouse — get an actual steak." },
+      { name: "Molten Lava Cake", reason: "920 calories of chocolate and sugar. More than your entire entree." }
+    ]
+  },
+  {
+    id: "tacobell",
+    name: "Taco Bell",
+    emoji: "🌮",
+    category: "Mexican",
+    vibe: "mexican",
+    mealType: ["quickbite", "latenight"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Power Menu Bowl",
+        protein: "26g",
+        desc: "Chicken, black beans, rice, lettuce, guac, tomatoes, sour cream, and cheese in a bowl.",
+        tip: "Ask for extra chicken and skip the sour cream. Bumps protein and cuts empty cals.",
+        price: 6.49,
+        kidOrder: "Cheese Quesadilla"
+      },
+      {
+        name: "Chicken Soft Tacos (3)",
+        protein: "24g",
+        desc: "Three soft tacos with shredded chicken, lettuce, and cheese. Simple and decent.",
+        tip: "Three of these are under 500 calories total. Solid option when you need volume.",
+        price: 5.97,
+        kidOrder: "Cheese Quesadilla"
+      },
+      {
+        name: "Black Bean Crunchwrap (Modified)",
+        protein: "22g",
+        desc: "Swap beef for chicken, add black beans. Ask for no creamy jalapeño sauce.",
+        tip: "Customizing at Taco Bell is free. Always swap and modify to hit your protein.",
+        price: 4.99,
+        kidOrder: "Cheese Quesadilla"
+      }
+    ],
+    skip: [
+      { name: "Nachos BellGrande", reason: "760 calories of chips, cheese, and beef. One of the worst items on the menu." },
+      { name: "Cheesy Gordita Crunch", reason: "500 calories for a single item with terrible protein ratio." },
+      { name: "Mountain Dew Baja Blast (Large)", reason: "73g of sugar. Almost two days' worth in a single drink." },
+      { name: "Cinnabon Delights", reason: "Pure sugar and dough. 310 calories with 2g protein for the 4-pack." }
+    ]
+  },
+
+  // ── FAST FOOD ──────────────────────────────────────
+
+  {
+    id: "wendys",
+    name: "Wendy's",
+    emoji: "🍔",
+    category: "Burgers",
+    vibe: "burgers",
+    mealType: ["quickbite", "latenight"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Chicken Sandwich",
+        protein: "34g",
+        desc: "Grilled chicken breast on a toasted bun with lettuce, tomato, and honey mustard.",
+        tip: "Skip the mayo and you save 100+ calories without losing any flavor.",
+        price: 6.29,
+        kidOrder: "4-Piece Nuggets Kids Meal"
+      },
+      {
+        name: "Jr. Cheeseburger Deluxe",
+        protein: "16g",
+        desc: "Smaller patty with lettuce, tomato, pickle, onion, and cheese. Smart portion.",
+        tip: "Two of these still have fewer calories than a Baconator and you get 32g protein.",
+        price: 2.99,
+        kidOrder: "4-Piece Nuggets Kids Meal"
+      },
+      {
+        name: "Apple Pecan Salad (Full, Grilled Chicken)",
+        protein: "38g",
+        desc: "Grilled chicken over mixed greens with blue cheese, pecans, and apple slices.",
+        tip: "Ask for the dressing on the side. Use half — the full packet adds 300 calories.",
+        price: 9.49,
+        kidOrder: "4-Piece Nuggets Kids Meal"
+      }
+    ],
+    skip: [
+      { name: "Baconator", reason: "960 calories and 62g of fat. This is two meals in one sandwich." },
+      { name: "Frosty (Large)", reason: "Iconic but 580 calories of sugar and cream. Not worth it." },
+      { name: "Spicy Chicken Sandwich (Fried)", reason: "The fried version adds 200+ calories over grilled for the same protein." },
+      { name: "Pretzel Pub Burger", reason: "Over 700 calories with that pretzel bun and cheese sauce." }
+    ]
+  },
+  {
+    id: "burgerking",
+    name: "Burger King",
+    emoji: "👑",
+    category: "Burgers",
+    vibe: "burgers",
+    mealType: ["quickbite", "latenight"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Whopper Jr. (No Mayo)",
+        protein: "15g",
+        desc: "Flame-grilled patty with lettuce, tomato, onion, pickles. Skip the mayo.",
+        tip: "No mayo saves you 110 calories. Mustard and ketchup give you all the flavor you need.",
+        price: 3.99,
+        kidOrder: "Kids Hamburger Meal"
+      },
+      {
+        name: "Grilled Chicken Sandwich",
+        protein: "32g",
+        desc: "Grilled chicken breast with lettuce and tomato on a toasted bun.",
+        tip: "This is the sleeper pick at BK. Way more protein than most burger options.",
+        price: 5.99,
+        kidOrder: "Kids Hamburger Meal"
+      },
+      {
+        name: "Egg & Cheese Croissan'wich (Breakfast)",
+        protein: "14g",
+        desc: "Egg and cheese on a croissant. Simple, quick breakfast option.",
+        tip: "Add a sausage patty for an extra 7g protein. Worth the small calorie bump.",
+        price: 4.49,
+        kidOrder: "Kids Hamburger Meal"
+      }
+    ],
+    skip: [
+      { name: "Double Whopper with Cheese", reason: "1,000+ calories. That's half your daily intake in one sandwich." },
+      { name: "Onion Rings (Large)", reason: "500 calories of fried batter. Zero protein benefit." },
+      { name: "Frozen Drinks", reason: "80+ grams of sugar. Basically a melted candy bar." },
+      { name: "Chicken Fries", reason: "Tiny pieces of breaded chicken. Bad protein-to-calorie ratio." }
+    ]
+  },
+  {
+    id: "popeyes",
+    name: "Popeyes",
+    emoji: "🫕",
+    category: "Chicken",
+    vibe: "chicken",
+    mealType: ["quickbite", "latenight"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Blackened Chicken Tenders (5-piece)",
+        protein: "37g",
+        desc: "Seasoned, non-fried tenders. All the flavor without the breading.",
+        tip: "These are the RIVEN go-to at Popeyes. Same Cajun flavor, fraction of the calories.",
+        price: 8.99,
+        kidOrder: "Kids 2-Piece Chicken Tenders"
+      },
+      {
+        name: "Chicken Breast (Mild, Skin Removed)",
+        protein: "35g",
+        desc: "Classic Popeyes chicken breast. Remove the skin and breading to save 150+ calories.",
+        tip: "Yes, the skin is amazing. But the meat underneath is still perfectly seasoned. Trust the process.",
+        price: 5.49,
+        kidOrder: "Kids 2-Piece Chicken Tenders"
+      },
+      {
+        name: "Green Beans + Red Beans & Rice (Sides Only)",
+        protein: "11g",
+        desc: "Pair these two sides together for a lower-calorie option when you want Popeyes without the fried chicken.",
+        tip: "Red beans & rice has solid protein for a side. Double up on green beans for volume.",
+        price: 4.99,
+        kidOrder: "Kids 2-Piece Chicken Tenders"
+      }
+    ],
+    skip: [
+      { name: "Chicken Sandwich", reason: "700 calories with 42g fat. The hype is real, but so are the numbers." },
+      { name: "Biscuit", reason: "240 calories of butter and flour per biscuit. They're incredible and that's the problem." },
+      { name: "Mac & Cheese", reason: "340 calories with barely any protein. Just cheese and carbs." },
+      { name: "Cajun Fries (Large)", reason: "770 calories. That's more than most entrees on this list." }
+    ]
+  },
+  {
+    id: "sonic",
+    name: "Sonic",
+    emoji: "🚗",
+    category: "Burgers",
+    vibe: "burgers",
+    mealType: ["quickbite", "latenight"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Classic Grilled Chicken Sandwich",
+        protein: "31g",
+        desc: "Grilled chicken breast with lettuce and tomato on a toasted bun.",
+        tip: "Skip the honey mustard sauce and save 100 calories. Ask for mustard instead.",
+        price: 6.49,
+        kidOrder: "Kids Jr. Burger"
+      },
+      {
+        name: "Jr. Burger",
+        protein: "14g",
+        desc: "Small beef patty with mustard, ketchup, and pickle. Simple and controlled.",
+        tip: "Two of these is still less than 500 calories. Smart when you want burgers without going overboard.",
+        price: 2.99,
+        kidOrder: "Kids Jr. Burger"
+      },
+      {
+        name: "Grilled Chicken Wrap",
+        protein: "28g",
+        desc: "Grilled chicken wrapped in a flour tortilla with ranch and veggies.",
+        tip: "Ask for no ranch and add mustard. Same satisfaction, way fewer empty calories.",
+        price: 5.49,
+        kidOrder: "Kids Jr. Burger"
+      }
+    ],
+    skip: [
+      { name: "SuperSONIC Bacon Double Cheeseburger", reason: "Over 1,100 calories. That's the definition of going overboard." },
+      { name: "Mozzarella Sticks", reason: "Fried cheese with 440 calories and barely any protein payoff." },
+      { name: "Large Shake", reason: "Over 1,000 calories. That's not a drink, that's a dessert emergency." },
+      { name: "Tater Tots (Large)", reason: "550 calories of fried potatoes. Your chicken doesn't need this." }
+    ]
+  },
+  {
+    id: "raisingcanes",
+    name: "Raising Cane's",
+    emoji: "🐓",
+    category: "Chicken",
+    vibe: "chicken",
+    mealType: ["quickbite"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "The Box (Chicken Only — 4 Fingers)",
+        protein: "44g",
+        desc: "Four chicken fingers. Eat the chicken, skip the Texas toast and fries.",
+        tip: "The chicken fingers are the protein star. Ditch the bread and fries and you cut 500+ calories.",
+        price: 9.49,
+        kidOrder: "Kids Combo (2 Fingers)"
+      },
+      {
+        name: "3 Chicken Fingers (Kid's Combo Size)",
+        protein: "33g",
+        desc: "Three fingers with coleslaw instead of fries. Simpler, lighter.",
+        tip: "The coleslaw is only 90 calories. Way better side choice than the fries.",
+        price: 5.99,
+        kidOrder: "Kids Combo (2 Fingers)"
+      },
+      {
+        name: "The Sandwich (No Bun)",
+        protein: "36g",
+        desc: "Three chicken fingers, lettuce, and Cane's sauce. Ditch the bun, eat it like a salad.",
+        tip: "No bun saves you 200 calories of white bread. The fingers don't need a wrapper.",
+        price: 6.99,
+        kidOrder: "Kids Combo (2 Fingers)"
+      }
+    ],
+    skip: [
+      { name: "Texas Toast", reason: "190 calories of buttered white bread. Pure empty carbs." },
+      { name: "Extra Cane's Sauce", reason: "190 calories per container. It's mostly mayo and fat." },
+      { name: "Large Lemonade", reason: "62g of sugar. Stick with water or unsweet tea." },
+      { name: "Coleslaw + Fries Combo", reason: "The fries add 320 calories. Pick one side, not both." }
+    ]
+  },
+  {
+    id: "whataburger",
+    name: "Whataburger",
+    emoji: "🤠",
+    category: "Burgers",
+    vibe: "burgers",
+    mealType: ["quickbite", "breakfast", "latenight"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Chicken Sandwich",
+        protein: "33g",
+        desc: "Marinated grilled chicken breast with lettuce, tomato on a toasted bun.",
+        tip: "The grilled chicken here is better than most fast food. Don't sleep on it.",
+        price: 6.99,
+        kidOrder: "Whatachick'n Strips Kids Meal"
+      },
+      {
+        name: "Whatachick'n Strips (3-piece)",
+        protein: "35g",
+        desc: "Three breaded chicken strips. Better protein-to-calorie ratio than most fried options.",
+        tip: "Skip the gravy dipping sauce. Use mustard or hot sauce instead.",
+        price: 7.49,
+        kidOrder: "Whatachick'n Strips Kids Meal"
+      },
+      {
+        name: "Double Meat Whataburger (Protein Style)",
+        protein: "42g",
+        desc: "Two patties wrapped in lettuce instead of a bun. No ketchup, add mustard.",
+        tip: "Lettuce wrap saves you 300 calories from the bun. All the beef, none of the bread.",
+        price: 7.99,
+        kidOrder: "Whatachick'n Strips Kids Meal"
+      }
+    ],
+    skip: [
+      { name: "Honey Butter Chicken Biscuit", reason: "610 calories. The honey butter adds 200 empty sugar calories." },
+      { name: "Patty Melt", reason: "940 calories with all that cheese and grilled onion butter. Hard pass." },
+      { name: "Onion Rings", reason: "455 calories of fried batter. Onion rings are never worth it." },
+      { name: "Large Shake", reason: "Over 800 calories. More than most meals on this entire list." }
+    ]
+  },
+  {
+    id: "krystal",
+    name: "Krystal",
+    emoji: "💎",
+    category: "Burgers",
+    vibe: "burgers",
+    mealType: ["quickbite", "latenight"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "4 Original Krystals",
+        protein: "28g",
+        desc: "Four classic sliders with mustard, onion, and pickle. Small but add up to solid protein.",
+        tip: "Four Krystals total about 600 calories. Better than one massive burger from somewhere else.",
+        price: 5.99,
+        kidOrder: "2 Krystals Kids Meal"
+      },
+      {
+        name: "3 Chiks (Chicken Sliders)",
+        protein: "24g",
+        desc: "Three small chicken breast sliders. Ask for no mayo.",
+        tip: "No mayo on all three saves you about 200 calories. Mustard is your friend.",
+        price: 5.49,
+        kidOrder: "2 Krystals Kids Meal"
+      },
+      {
+        name: "BA Burger (No Mayo)",
+        protein: "22g",
+        desc: "Bigger single patty with bacon, cheese, lettuce, tomato. Skip the mayo.",
+        tip: "This is the most 'real burger' feeling at Krystal. One and done.",
+        price: 4.99,
+        kidOrder: "2 Krystals Kids Meal"
+      }
+    ],
+    skip: [
+      { name: "Chili Cheese Pups", reason: "Fried corn dogs with chili cheese. Zero protein strategy here." },
+      { name: "Loaded Fries", reason: "Fries buried in cheese and chili. 600+ calories of sides." },
+      { name: "Milkshake (Any)", reason: "Over 500 calories of sugar and cream. Not the move." },
+      { name: "Corn Pups", reason: "Deep-fried hot dogs in cornbread batter. Just... no." }
+    ]
+  },
+  {
+    id: "jacks",
+    name: "Jack's",
+    emoji: "⭐",
+    category: "Southern Fast Food",
+    vibe: "chicken",
+    mealType: ["quickbite", "breakfast"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Chicken Sandwich",
+        protein: "30g",
+        desc: "Simple grilled chicken breast on a bun with lettuce and tomato.",
+        tip: "Jack's doesn't get enough credit for their grilled options. This is a solid pick.",
+        price: 5.99,
+        kidOrder: "Kids Chicken Fingers"
+      },
+      {
+        name: "2-Piece Chicken Dinner (Breast + Thigh, Skin Removed)",
+        protein: "42g",
+        desc: "Classic fried chicken pieces. Remove the skin to cut calories dramatically.",
+        tip: "The seasoning soaks into the meat. You're not losing much flavor by ditching the skin.",
+        price: 7.49,
+        kidOrder: "Kids Chicken Fingers"
+      },
+      {
+        name: "Scrambled Eggs & Bacon Platter (Breakfast)",
+        protein: "28g",
+        desc: "Scrambled eggs with bacon strips. Skip the biscuit, keep the protein.",
+        tip: "Ask for extra bacon instead of the biscuit. Pure protein swap.",
+        price: 6.99,
+        kidOrder: "Kids Chicken Fingers"
+      }
+    ],
+    skip: [
+      { name: "Biscuit & Gravy", reason: "400+ calories of white flour and cream gravy. Zero protein value." },
+      { name: "Big Jack Burger", reason: "Over 700 calories with all the toppings and sauce." },
+      { name: "Sweet Tea (Large)", reason: "250 calories of liquid sugar. More sugar than a Snickers bar." },
+      { name: "Hash Browns", reason: "Deep-fried potato patties. Empty carbs and oil." }
+    ]
+  },
+  {
+    id: "bojangles",
+    name: "Bojangles",
+    emoji: "🐤",
+    category: "Chicken",
+    vibe: "chicken",
+    mealType: ["quickbite", "breakfast"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Cajun Filet Biscuit (No Butter on Biscuit)",
+        protein: "28g",
+        desc: "Cajun-seasoned chicken breast fillet on a biscuit. Ask for no butter on the biscuit.",
+        tip: "Skipping the butter on the biscuit saves about 100 calories. The chicken carries the flavor.",
+        price: 5.49,
+        kidOrder: "Kids Leg & Biscuit"
+      },
+      {
+        name: "Chicken Supremes (4-piece)",
+        protein: "32g",
+        desc: "Seasoned chicken breast strips. Bojangles' version of tenders.",
+        tip: "These are the highest-protein item on the menu per calorie. Smart default order.",
+        price: 7.49,
+        kidOrder: "Kids Leg & Biscuit"
+      },
+      {
+        name: "Grilled Chicken Breast (2-piece Dinner)",
+        protein: "40g",
+        desc: "Two seasoned chicken breasts with green beans and a dinner roll.",
+        tip: "Green beans are under 50 calories. Best side at Bojangles by far.",
+        price: 8.49,
+        kidOrder: "Kids Leg & Biscuit"
+      }
+    ],
+    skip: [
+      { name: "Bo-Berry Biscuit", reason: "380 calories of sugar-glazed dough. A dessert pretending to be breakfast." },
+      { name: "Dirty Rice", reason: "Looks healthy but loaded with oil and sodium. 300 calories per serving." },
+      { name: "Sweet Tea (Large)", reason: "64g of sugar. That's a full day's worth in one cup." },
+      { name: "Mac & Cheese", reason: "340 calories with only 11g protein. Terrible ratio." }
+    ]
+  },
+  {
+    id: "cookout",
+    name: "Cook Out",
+    emoji: "🔥",
+    category: "Burgers",
+    vibe: "burgers",
+    mealType: ["quickbite", "latenight"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Char-Grilled Chicken Breast",
+        protein: "36g",
+        desc: "Plain char-grilled chicken breast on a bun. Simple and effective.",
+        tip: "This is the hidden gem at Cook Out. Everyone gets burgers, but this is the smart play.",
+        price: 5.49,
+        kidOrder: "Kids Hamburger Tray"
+      },
+      {
+        name: "Burger (Lettuce Wrap, No Mayo)",
+        protein: "25g",
+        desc: "Regular burger patty wrapped in lettuce instead of a bun. Mustard and pickles.",
+        tip: "Cook Out will lettuce wrap anything if you ask. Save yourself 250 calories from the bun.",
+        price: 4.49,
+        kidOrder: "Kids Hamburger Tray"
+      },
+      {
+        name: "Chicken Strips (3-piece)",
+        protein: "30g",
+        desc: "Three char-grilled chicken strips. Solid protein for a drive-through run.",
+        tip: "Pair with a side of slaw instead of fries. Way fewer calories, still satisfying.",
+        price: 5.99,
+        kidOrder: "Kids Hamburger Tray"
+      }
+    ],
+    skip: [
+      { name: "Huge Burger", reason: "Two patties with all the toppings. Over 850 calories." },
+      { name: "Milkshake (Any)", reason: "They're legendary but 700+ calories of pure sugar and cream." },
+      { name: "Corn Dogs", reason: "Deep-fried carnival food. No protein strategy here." },
+      { name: "Hush Puppies", reason: "Fried cornmeal balls. 300 calories of oil and carbs." }
+    ]
+  },
+  {
+    id: "captainds",
+    name: "Captain D's",
+    emoji: "🐟",
+    category: "Seafood",
+    vibe: "seafood",
+    mealType: ["quickbite", "sitdown"],
+    time: "10to20",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled White Fish (3-piece)",
+        protein: "34g",
+        desc: "Three pieces of seasoned, grilled white fish. No breading, no frying.",
+        tip: "Grilled fish is the RIVEN move at Captain D's. Same flavor, half the calories of fried.",
+        price: 9.99,
+        kidOrder: "Kids Fish & Fries"
+      },
+      {
+        name: "Grilled Salmon",
+        protein: "38g",
+        desc: "Full salmon fillet, grilled and seasoned. Pair with green beans.",
+        tip: "Salmon has healthy omega-3 fats. This is a legit nutritious meal from a fast-food spot.",
+        price: 11.99,
+        kidOrder: "Kids Fish & Fries"
+      },
+      {
+        name: "Wild Alaskan Salmon Bowl",
+        protein: "30g",
+        desc: "Salmon over rice with seasoned vegetables. Ask for extra veggies, less rice.",
+        tip: "Cut the rice in half and double the veggies. Same fullness, way fewer carbs.",
+        price: 10.99,
+        kidOrder: "Kids Fish & Fries"
+      }
+    ],
+    skip: [
+      { name: "Batter-Dipped Fish", reason: "The breading and frying doubles the calories. Always go grilled." },
+      { name: "Hush Puppies", reason: "200+ calories of fried cornmeal per serving. Zero protein." },
+      { name: "Coleslaw", reason: "Loaded with mayo. 190 calories for a side that should be 50." },
+      { name: "Giant Fish Sandwich", reason: "Fried fish on a giant bun with tartar sauce. 600+ calories." }
+    ]
+  },
+  {
+    id: "arbys",
+    name: "Arby's",
+    emoji: "🥩",
+    category: "Subs / Roast Beef",
+    vibe: "subs",
+    mealType: ["quickbite"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Classic Roast Beef",
+        protein: "23g",
+        desc: "Thinly sliced roast beef on a sesame seed bun. Simple, lean, and solid.",
+        tip: "The classic is actually one of the best protein-per-calorie options in fast food.",
+        price: 5.49,
+        kidOrder: "Kids Roast Beef Slider"
+      },
+      {
+        name: "Turkey Ranch & Bacon (No Ranch)",
+        protein: "29g",
+        desc: "Sliced turkey with bacon, lettuce, tomato on wheat. Skip the ranch sauce.",
+        tip: "No ranch saves you 120 calories. Mustard or nothing — the turkey and bacon carry it.",
+        price: 6.99,
+        kidOrder: "Kids Roast Beef Slider"
+      },
+      {
+        name: "Roast Turkey Farmhouse Salad",
+        protein: "26g",
+        desc: "Roast turkey over mixed greens with tomato, bacon, and cheese.",
+        tip: "Ask for balsamic vinaigrette on the side. Use half. Way better than the creamy dressings.",
+        price: 8.49,
+        kidOrder: "Kids Roast Beef Slider"
+      }
+    ],
+    skip: [
+      { name: "Loaded Curly Fries", reason: "650 calories of fried potatoes, cheese sauce, and bacon bits." },
+      { name: "Jamocha Shake (Large)", reason: "860 calories. More than two Classic Roast Beefs combined." },
+      { name: "Mozzarella Sticks", reason: "Fried cheese sticks at 450 calories with 10g protein. Awful ratio." },
+      { name: "Beef 'N Cheddar", reason: "The cheddar sauce adds 200 calories over the classic for no extra protein." }
+    ]
+  },
+
+  // ── FAST CASUAL ────────────────────────────────────
+
+  {
+    id: "panera",
+    name: "Panera Bread",
+    emoji: "🥖",
+    category: "Bakery Cafe",
+    vibe: "subs",
+    mealType: ["quickbite", "breakfast"],
+    time: "10to20",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Chipotle Chicken Avocado Melt (Half)",
+        protein: "24g",
+        desc: "Grilled chicken with avocado, chipotle aioli, and pepper jack on Black Pepper Focaccia.",
+        tip: "Get the half instead of the whole. Same satisfaction, half the bread calories.",
+        price: 6.49,
+        kidOrder: "Kids Grilled Cheese"
+      },
+      {
+        name: "Mediterranean Grain Bowl with Chicken",
+        protein: "37g",
+        desc: "Grilled chicken over ancient grains with arugula, tomatoes, olives, and feta.",
+        tip: "This is the best macro-friendly option at Panera. High protein, healthy fats, real vegetables.",
+        price: 11.49,
+        kidOrder: "Kids Grilled Cheese"
+      },
+      {
+        name: "Turkey Sandwich on Whole Grain",
+        protein: "30g",
+        desc: "Roasted turkey breast with lettuce, tomato, and Dijon on whole grain bread.",
+        tip: "Ask for extra turkey. Panera will usually add more for a small upcharge.",
+        price: 9.49,
+        kidOrder: "Kids Grilled Cheese"
+      }
+    ],
+    skip: [
+      { name: "Bread Bowl (Any Soup)", reason: "The bread bowl alone is 600 calories before the soup even goes in." },
+      { name: "Mac & Cheese", reason: "980 calories for a large. One of the highest-calorie items in all of fast casual." },
+      { name: "Kitchen Sink Cookie", reason: "800 calories in one cookie. Not a typo." },
+      { name: "Cinnamon Crunch Bagel", reason: "430 calories of sugar-coated bread. Dessert for breakfast." }
+    ]
+  },
+  {
+    id: "pandaexpress",
+    name: "Panda Express",
+    emoji: "🐼",
+    category: "Chinese",
+    vibe: "chicken",
+    mealType: ["quickbite"],
+    time: "under10",
+    driveThru: true,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Teriyaki Chicken",
+        protein: "36g",
+        desc: "Grilled chicken thigh with teriyaki glaze. The best protein option on the menu.",
+        tip: "Always go grilled teriyaki. It has DOUBLE the protein of Orange Chicken.",
+        price: 8.49,
+        kidOrder: "Kids Orange Chicken Bowl"
+      },
+      {
+        name: "String Bean Chicken Breast",
+        protein: "18g",
+        desc: "Chicken breast wok-tossed with string beans and onions in a light ginger soy sauce.",
+        tip: "One of the lowest-calorie entrees at Panda. Pair with super greens instead of rice.",
+        price: 7.99,
+        kidOrder: "Kids Orange Chicken Bowl"
+      },
+      {
+        name: "Mushroom Chicken",
+        protein: "16g",
+        desc: "Chicken breast with mushrooms and zucchini in a light ginger soy sauce.",
+        tip: "Double up on this and the teriyaki chicken for a two-entree plate packed with protein.",
+        price: 7.99,
+        kidOrder: "Kids Orange Chicken Bowl"
+      }
+    ],
+    skip: [
+      { name: "Orange Chicken", reason: "Breaded, fried, and coated in sugar sauce. 490 calories for half the protein of grilled." },
+      { name: "Fried Rice", reason: "520 calories of oil-soaked rice. Get steamed rice or super greens instead." },
+      { name: "Chow Mein", reason: "510 calories of oily noodles. Almost as bad as the fried rice." },
+      { name: "Cream Cheese Rangoons", reason: "Deep-fried cream cheese wontons. 190 calories with 5g protein. Nope." }
+    ]
+  },
+  {
+    id: "moes",
+    name: "Moe's Southwest Grill",
+    emoji: "🌶️",
+    category: "Mexican",
+    vibe: "mexican",
+    mealType: ["quickbite", "latenight"],
+    time: "under10",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Homewrecker Bowl (Chicken)",
+        protein: "48g",
+        desc: "Chicken, rice, black beans, shredded cheese, pico, lettuce, sour cream in a bowl.",
+        tip: "Skip the sour cream and tortilla. The bowl version saves you 350 calories over the burrito.",
+        price: 9.99,
+        kidOrder: "Kids Mini Quesadilla"
+      },
+      {
+        name: "Art Vandalay (Chicken Burrito Bowl)",
+        protein: "42g",
+        desc: "Chicken, beans, rice, and veggies. Build it as a bowl instead of a burrito.",
+        tip: "Moe's gives you free chips and salsa. Take a few for the crunch, don't eat the whole bag.",
+        price: 9.49,
+        kidOrder: "Kids Mini Quesadilla"
+      },
+      {
+        name: "Stacked Chicken Tacos (3)",
+        protein: "36g",
+        desc: "Three hard shell tacos with grilled chicken, lettuce, cheese, and pico.",
+        tip: "Hard shell tacos are fewer calories than flour tortillas. Small swap, real results.",
+        price: 8.99,
+        kidOrder: "Kids Mini Quesadilla"
+      }
+    ],
+    skip: [
+      { name: "Queso", reason: "Moe's queso is legendary but 150 calories per ladle with almost no protein." },
+      { name: "Chips (Full Bag)", reason: "The free chips are 500+ calories. Take a handful, leave the rest." },
+      { name: "Sour Cream", reason: "120 calories per scoop. Your bowl doesn't need it." },
+      { name: "Joey Bag of Donuts Burrito", reason: "Wrapped in a tortilla that's 300 calories by itself. Always go bowl." }
+    ]
+  },
+  {
+    id: "fiveguys",
+    name: "Five Guys",
+    emoji: "🍔",
+    category: "Burgers",
+    vibe: "burgers",
+    mealType: ["quickbite"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Little Hamburger (Lettuce Wrap)",
+        protein: "24g",
+        desc: "Single patty wrapped in lettuce instead of a bun. Add all the free veggies you want.",
+        tip: "Five Guys toppings are free. Load up on lettuce, tomato, onion, mushrooms, peppers.",
+        price: 7.99,
+        kidOrder: "Little Hamburger"
+      },
+      {
+        name: "Bunless Bacon Cheeseburger",
+        protein: "38g",
+        desc: "Two patties with bacon and cheese in a bowl with toppings. No bun.",
+        tip: "Going bunless saves 260 calories. You won't miss the bread with all that flavor.",
+        price: 11.99,
+        kidOrder: "Little Hamburger"
+      },
+      {
+        name: "Hot Dog (Plain with Mustard)",
+        protein: "18g",
+        desc: "All-beef hot dog on a bun. Simple, lower-calorie option than the burgers.",
+        tip: "A plain hot dog is only 520 calories. One of the lightest items at Five Guys.",
+        price: 5.99,
+        kidOrder: "Little Hamburger"
+      }
+    ],
+    skip: [
+      { name: "Regular Fries", reason: "953 calories for a regular. Five Guys fries are legendary AND dangerous." },
+      { name: "Large Fries", reason: "1,314 calories. More than most people should eat in an entire meal... or two." },
+      { name: "Milkshake (Any)", reason: "Over 800 calories. A full meal's worth of sugar and cream." },
+      { name: "Grilled Cheese (Plain)", reason: "470 calories of bread and melted cheese. No protein payoff." }
+    ]
+  },
+
+  // ── WINGS & SPORTS ─────────────────────────────────
+
+  {
+    id: "buffalowildwings",
+    name: "Buffalo Wild Wings",
+    emoji: "🦬",
+    category: "Wings",
+    vibe: "chicken",
+    mealType: ["quickbite", "sitdown", "latenight"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Naked Tenders (Grilled, 6-piece)",
+        protein: "50g",
+        desc: "Unbreaded, grilled chicken tenders with your choice of sauce on the side.",
+        tip: "Naked tenders have almost DOUBLE the protein of boneless wings with half the calories.",
+        price: 12.99,
+        kidOrder: "Kids Boneless Wings"
+      },
+      {
+        name: "Traditional Wings (Dry Rub, 12)",
+        protein: "48g",
+        desc: "Bone-in wings with dry rub seasoning. Desert Heat or Lemon Pepper are great picks.",
+        tip: "Dry rub wings have way fewer calories than sauced wings. All flavor, no extra sugar or oil.",
+        price: 16.99,
+        kidOrder: "Kids Boneless Wings"
+      },
+      {
+        name: "Grilled Chicken Sandwich",
+        protein: "40g",
+        desc: "Grilled chicken breast on a brioche bun with lettuce and tomato.",
+        tip: "Skip the fries that come with it. Ask for a side salad or celery and carrots.",
+        price: 11.99,
+        kidOrder: "Kids Boneless Wings"
+      }
+    ],
+    skip: [
+      { name: "Boneless Wings", reason: "They're breaded and fried chicken nuggets. 200 more calories than traditional for less protein." },
+      { name: "Cheese Curds", reason: "740 calories of deep-fried cheese. Appetizer calories bigger than most entrees." },
+      { name: "Beer Cheese Dip", reason: "430 calories before you even dip anything in it." },
+      { name: "Desert Heat Fries", reason: "860 calories. That's a whole meal in a side dish." }
+    ]
+  },
+  {
+    id: "baumhowers",
+    name: "Baumhower's Victory Grille",
+    emoji: "🏈",
+    category: "Wings / Southern",
+    vibe: "chicken",
+    mealType: ["sitdown", "latenight"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Chicken Tenders",
+        protein: "42g",
+        desc: "Char-grilled chicken tenders served with your choice of side.",
+        tip: "Pair with steamed broccoli or a side salad. Skip the fries.",
+        price: 13.99,
+        kidOrder: "Kids Grilled Chicken Tenders"
+      },
+      {
+        name: "Blackened Chicken Salad",
+        protein: "38g",
+        desc: "Blackened chicken breast over mixed greens with light vinaigrette.",
+        tip: "Ask for dressing on the side. Use half. The blackened seasoning gives you all the flavor.",
+        price: 12.99,
+        kidOrder: "Kids Grilled Chicken Tenders"
+      },
+      {
+        name: "Wood-Grilled Salmon",
+        protein: "40g",
+        desc: "Fresh Atlantic salmon fillet grilled over wood fire with seasonal vegetables.",
+        tip: "Salmon is always a RIVEN-approved pick. Healthy fats + high protein = winning combo.",
+        price: 18.99,
+        kidOrder: "Kids Grilled Chicken Tenders"
+      }
+    ],
+    skip: [
+      { name: "Fried Wings Combo", reason: "Fried wings plus fries is 1,200+ calories. Stick to grilled." },
+      { name: "Loaded Potato Skins", reason: "600 calories of cheese, bacon, and sour cream on fried potato shells." },
+      { name: "Sweet Potato Casserole", reason: "Sounds healthy but it's loaded with brown sugar and marshmallows." },
+      { name: "Fried Pickles", reason: "Battered and fried. 400+ calories of oil and breading." }
+    ]
+  },
+  {
+    id: "hooters",
+    name: "Hooters",
+    emoji: "🦉",
+    category: "Wings",
+    vibe: "chicken",
+    mealType: ["sitdown", "latenight"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: false,
+    local: false,
+    order: [
+      {
+        name: "Naked Wings (10-piece, Dry Rub)",
+        protein: "50g",
+        desc: "Unbreaded wings with dry rub seasoning. High protein, no frying.",
+        tip: "Naked wings are the only RIVEN-approved wing at Hooters. Always go naked, always go dry rub.",
+        price: 14.99,
+        kidOrder: null
+      },
+      {
+        name: "Grilled Chicken Sandwich",
+        protein: "35g",
+        desc: "Grilled chicken breast on a bun with lettuce and tomato.",
+        tip: "Skip the Hooters sauce and ask for mustard. Save 150+ calories.",
+        price: 11.99,
+        kidOrder: null
+      },
+      {
+        name: "Steamed Shrimp (1 lb)",
+        protein: "46g",
+        desc: "One pound of steamed shrimp with cocktail sauce. Incredibly high protein, low calorie.",
+        tip: "This is the best-kept secret at Hooters. Massive protein with barely any calories.",
+        price: 16.99,
+        kidOrder: null
+      }
+    ],
+    skip: [
+      { name: "Breaded Wings", reason: "The breading adds 200+ calories over naked wings. Not worth it." },
+      { name: "Hooters Burger", reason: "Over 900 calories with the loaded toppings and sauce." },
+      { name: "Tot-Chos", reason: "Tater tots covered in cheese and toppings. 1,000+ calorie appetizer." },
+      { name: "Daytona Beach Wings", reason: "Deep-fried and coated in sweet sauce. Double the calories of naked." }
+    ]
+  },
+
+  // ── CASUAL DINING / SIT-DOWN ───────────────────────
+
+  {
+    id: "texasroadhouse",
+    name: "Texas Roadhouse",
+    emoji: "🐂",
+    category: "Steak",
+    vibe: "steak",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "6 oz USDA Choice Sirloin",
+        protein: "46g",
+        desc: "Hand-cut sirloin steak grilled to order. Pair with a side salad and steamed veggies.",
+        tip: "The 6 oz is plenty. Don't upsize — bigger steaks just mean more saturated fat.",
+        price: 14.99,
+        kidOrder: "Kids Grilled Chicken"
+      },
+      {
+        name: "Grilled Chicken",
+        protein: "43g",
+        desc: "Seasoned grilled chicken breast served with two sides of your choice.",
+        tip: "Get steamed veggies and a side salad. Skip the loaded baked potato.",
+        price: 12.99,
+        kidOrder: "Kids Grilled Chicken"
+      },
+      {
+        name: "Dallas Filet (6 oz)",
+        protein: "44g",
+        desc: "Center-cut filet mignon, the leanest cut of steak. Pure protein.",
+        tip: "Filet is the leanest steak cut. More protein per calorie than any other option.",
+        price: 22.99,
+        kidOrder: "Kids Grilled Chicken"
+      }
+    ],
+    skip: [
+      { name: "Cactus Blossom", reason: "A deep-fried onion with 2,000+ calories. That's a full day's intake in an appetizer." },
+      { name: "Rolls with Cinnamon Butter", reason: "227 calories per roll with that sweet butter. Three of them = a meal." },
+      { name: "Loaded Baked Potato", reason: "600+ calories once you add the butter, sour cream, cheese, and bacon." },
+      { name: "Country Fried Steak", reason: "Over 900 calories. You're at a steakhouse — get a real steak, not a fried one." }
+    ]
+  },
+  {
+    id: "redlobster",
+    name: "Red Lobster",
+    emoji: "🦞",
+    category: "Seafood",
+    vibe: "seafood",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Live Maine Lobster (Steamed)",
+        protein: "44g",
+        desc: "Whole steamed lobster. Pure protein, almost zero fat. The ultimate lean protein splurge.",
+        tip: "Skip the drawn butter or use just a tiny bit. The lobster is incredible on its own.",
+        price: 29.99,
+        kidOrder: "Kids Popcorn Shrimp"
+      },
+      {
+        name: "Wood-Grilled Salmon",
+        protein: "42g",
+        desc: "Atlantic salmon fillet grilled over real wood fire. Rich in omega-3s.",
+        tip: "Pair with broccoli and a garden salad. Skip the mashed potatoes.",
+        price: 19.99,
+        kidOrder: "Kids Popcorn Shrimp"
+      },
+      {
+        name: "Garlic Shrimp Scampi",
+        protein: "30g",
+        desc: "Shrimp sautéed in garlic butter sauce. Ask for light butter.",
+        tip: "Ask them to go light on the butter. Still delicious, way fewer calories.",
+        price: 18.99,
+        kidOrder: "Kids Popcorn Shrimp"
+      }
+    ],
+    skip: [
+      { name: "Cheddar Bay Biscuits", reason: "170 calories each with cheese and butter. They're unlimited. That's the danger." },
+      { name: "Admiral's Feast", reason: "A fried seafood sampler at 1,500+ calories. Everything good about seafood, ruined." },
+      { name: "Lobster Mac & Cheese", reason: "Over 900 calories. The lobster deserves better than drowning in cheese." },
+      { name: "Sailor's Platter", reason: "More fried seafood. 1,000+ calories of breading and oil." }
+    ]
+  },
+  {
+    id: "chilis",
+    name: "Chili's",
+    emoji: "🌶️",
+    category: "American Grill",
+    vibe: "southern",
+    mealType: ["sitdown", "latenight"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Ancho Salmon",
+        protein: "50g",
+        desc: "6 oz salmon fillet with ancho-chile glaze and garlic butter. Served with rice and steamed broccoli.",
+        tip: "This is the best macro item at Chili's. High protein, healthy fats, and under 600 calories.",
+        price: 16.99,
+        kidOrder: "Kids Grilled Chicken Platter"
+      },
+      {
+        name: "Chicken Fajitas (No Tortillas)",
+        protein: "45g",
+        desc: "Sizzling chicken with grilled peppers and onions. Skip the tortillas, eat it like a bowl.",
+        tip: "No tortillas saves you 400+ calories. The chicken and veggies are the star anyway.",
+        price: 14.99,
+        kidOrder: "Kids Grilled Chicken Platter"
+      },
+      {
+        name: "6 oz Classic Sirloin",
+        protein: "42g",
+        desc: "USDA Choice sirloin with steamed broccoli and side salad.",
+        tip: "Keep it simple — steak and veggies. That's all you need here.",
+        price: 14.99,
+        kidOrder: "Kids Grilled Chicken Platter"
+      }
+    ],
+    skip: [
+      { name: "Southwestern Eggrolls", reason: "Fried eggrolls at 790 calories. One of the worst appetizers in all of dining." },
+      { name: "Honey Chipotle Chicken Crispers", reason: "Breaded, fried, and glazed in sugary sauce. 1,290 calories." },
+      { name: "Baby Back Ribs (Full Rack)", reason: "Over 1,100 calories with the sweet glaze. Way too much sugar and fat." },
+      { name: "Molten Lava Cake", reason: "Over 1,000 calories for a single dessert. A full day of sugar in one plate." }
+    ]
+  },
+  {
+    id: "outback",
+    name: "Outback Steakhouse",
+    emoji: "🦘",
+    category: "Steak",
+    vibe: "steak",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Victoria's Filet (6 oz)",
+        protein: "48g",
+        desc: "Center-cut tenderloin filet. The leanest, most tender steak on the menu.",
+        tip: "Filet mignon has less fat than any other cut. Pure, clean protein.",
+        price: 24.99,
+        kidOrder: "Kids Grilled Chicken on the Barbie"
+      },
+      {
+        name: "Grilled Chicken on the Barbie",
+        protein: "44g",
+        desc: "Seasoned, wood-fire grilled chicken breast with a light BBQ glaze.",
+        tip: "Ask for the BBQ sauce on the side. Use a little for flavor, not the whole pour.",
+        price: 14.99,
+        kidOrder: "Kids Grilled Chicken on the Barbie"
+      },
+      {
+        name: "Perfectly Grilled Salmon",
+        protein: "42g",
+        desc: "Atlantic salmon fillet grilled and served with seasonal veggies.",
+        tip: "Always pair with steamed veggies. Skip the loaded sides.",
+        price: 19.99,
+        kidOrder: "Kids Grilled Chicken on the Barbie"
+      }
+    ],
+    skip: [
+      { name: "Bloomin' Onion", reason: "The most famous appetizer in America is also 1,950 calories. Enough said." },
+      { name: "Alice Springs Chicken", reason: "Chicken smothered in cheese, bacon, and honey mustard. 1,200+ calories." },
+      { name: "Loaded Baked Potato", reason: "All the toppings turn a potato into 500+ calories of butter and cheese." },
+      { name: "Chocolate Thunder from Down Under", reason: "1,560 calories. That's not a dessert, that's nutritional devastation." }
+    ]
+  },
+  {
+    id: "goldencorral",
+    name: "Golden Corral",
+    emoji: "🍽️",
+    category: "Buffet",
+    vibe: "southern",
+    mealType: ["sitdown", "breakfast"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Chicken Breast (Carving Station)",
+        protein: "40g",
+        desc: "Go straight to the carving station for freshly carved grilled chicken.",
+        tip: "At a buffet, hit the protein first. Fill your plate with chicken before anything else.",
+        price: 14.99,
+        kidOrder: "Buffet (kids under 3 free)"
+      },
+      {
+        name: "Carved Ham / Turkey",
+        protein: "36g",
+        desc: "Lean carved ham or turkey from the carving station. Great protein-to-calorie ratio.",
+        tip: "Two trips to the carving station is better than one trip to the mac & cheese bar.",
+        price: 14.99,
+        kidOrder: "Buffet (kids under 3 free)"
+      },
+      {
+        name: "Steamed Vegetables + Grilled Fish",
+        protein: "28g",
+        desc: "Pair grilled fish with a plate of steamed broccoli, green beans, and corn.",
+        tip: "Build your plate like a RIVEN meal: half protein, half vegetables. Ignore everything else.",
+        price: 14.99,
+        kidOrder: "Buffet (kids under 3 free)"
+      }
+    ],
+    skip: [
+      { name: "Buffet Bread Rolls", reason: "They refill them endlessly. Each one is 200 calories of white flour." },
+      { name: "Mac & Cheese Bar", reason: "Unlimited mac & cheese is not a blessing. It's a calorie catastrophe." },
+      { name: "Fried Catfish", reason: "The grilled fish is right next to it. Choose the one without 300 calories of breading." },
+      { name: "Cotton Candy Machine", reason: "Pure spun sugar. Do we even need to explain this one?" }
+    ]
+  },
+  {
+    id: "ocharleys",
+    name: "O'Charley's",
+    emoji: "🍀",
+    category: "American",
+    vibe: "southern",
+    mealType: ["sitdown"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Chicken Tenderloins",
+        protein: "40g",
+        desc: "Seasoned grilled chicken tenderloins with steamed broccoli and side salad.",
+        tip: "Simple, effective, high protein. This is the go-to at O'Charley's.",
+        price: 12.99,
+        kidOrder: "Kids Grilled Chicken Tenders"
+      },
+      {
+        name: "Cedar Plank Salmon",
+        protein: "42g",
+        desc: "Salmon fillet grilled on a cedar plank with seasonal vegetables.",
+        tip: "Cedar plank adds amazing flavor without adding calories. Smart choice.",
+        price: 16.99,
+        kidOrder: "Kids Grilled Chicken Tenders"
+      },
+      {
+        name: "Top Sirloin (8 oz)",
+        protein: "52g",
+        desc: "USDA Choice top sirloin with your choice of two sides.",
+        tip: "Get steamed veggies and a house salad. Skip the loaded baked potato.",
+        price: 15.99,
+        kidOrder: "Kids Grilled Chicken Tenders"
+      }
+    ],
+    skip: [
+      { name: "Loaded Potato Soup", reason: "400 calories of cream, cheese, and bacon in a bowl of liquid." },
+      { name: "Chicken Tenders & Fries", reason: "Breaded, fried chicken with fried potatoes. Double fried = double trouble." },
+      { name: "Free Pie Wednesday", reason: "The ultimate trap. One slice is 500-800 calories. Stay strong." },
+      { name: "Caramel Pie", reason: "790 calories of sugar, cream, and caramel. More calories than most entrees." }
+    ]
+  },
+  {
+    id: "jimnicks",
+    name: "Jim 'N Nick's Bar-B-Q",
+    emoji: "🐖",
+    category: "BBQ",
+    vibe: "southern",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Smoked Turkey Plate",
+        protein: "44g",
+        desc: "Slow-smoked turkey breast sliced to order. Incredibly lean BBQ protein.",
+        tip: "Smoked turkey is the leanest BBQ meat. Way less fat than pulled pork or brisket.",
+        price: 14.99,
+        kidOrder: "Kids Pulled Chicken Plate"
+      },
+      {
+        name: "Pulled Chicken Plate",
+        protein: "38g",
+        desc: "Slow-smoked pulled chicken with your choice of two sides.",
+        tip: "Get the vinegar-based sauce instead of sweet BBQ. Less sugar, more flavor.",
+        price: 13.99,
+        kidOrder: "Kids Pulled Chicken Plate"
+      },
+      {
+        name: "Brisket (Lean Cuts)",
+        protein: "40g",
+        desc: "Smoked brisket — ask for lean slices. Pair with green beans and coleslaw.",
+        tip: "Ask specifically for lean slices. The fatty end is delicious but 3x the calories.",
+        price: 16.99,
+        kidOrder: "Kids Pulled Chicken Plate"
+      }
+    ],
+    skip: [
+      { name: "Cheese Biscuits", reason: "Jim 'N Nick's biscuits are legendary AND 300+ calories each. Limit to one max." },
+      { name: "Mac & Cheese", reason: "Cheesy, creamy, and 400+ calories per serving. BBQ joints always have dangerous sides." },
+      { name: "Sweet Tea", reason: "Their sweet tea is basically sugar water. 250+ calories per glass." },
+      { name: "Brunswick Stew", reason: "Sounds rustic but loaded with fat and sodium. 350 calories per cup." }
+    ]
+  },
+  {
+    id: "firebirds",
+    name: "Firebirds Wood Fired Grill",
+    emoji: "🦅",
+    category: "Wood-Fired Grill",
+    vibe: "steak",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: false,
+    local: false,
+    order: [
+      {
+        name: "Wood Grilled Salmon",
+        protein: "44g",
+        desc: "Fresh Atlantic salmon grilled over real wood fire with seasonal vegetables.",
+        tip: "Wood fire gives incredible flavor without adding calories. Always a smart pick.",
+        price: 24.99,
+        kidOrder: null
+      },
+      {
+        name: "Chilean Sea Bass",
+        protein: "38g",
+        desc: "Pan-seared Chilean sea bass with a light miso glaze and steamed vegetables.",
+        tip: "Sea bass is buttery and rich without being calorie-heavy. Upscale protein done right.",
+        price: 32.99,
+        kidOrder: null
+      },
+      {
+        name: "Filet Mignon (8 oz)",
+        protein: "52g",
+        desc: "Center-cut USDA Prime filet. The leanest, most tender steak on the menu.",
+        tip: "Prime filet at Firebirds is worth it for a nice dinner. Pure clean protein.",
+        price: 34.99,
+        kidOrder: null
+      }
+    ],
+    skip: [
+      { name: "Lobster Mac & Cheese", reason: "Over 900 calories. The lobster and cheese are fighting each other nutritionally." },
+      { name: "Crispy Artichoke Dip", reason: "500+ calories of fried artichoke and cream cheese. Skip the appetizer." },
+      { name: "Pecan Crusted Trout", reason: "Sounds healthy but the pecan crust adds 300+ calories of sugar and nuts." },
+      { name: "Key Lime Pie", reason: "700 calories of sugar and cream. Save your meal with a clean ending." }
+    ]
+  },
+
+  // ── BREAKFAST / BRUNCH ─────────────────────────────
+
+  {
+    id: "ihop",
+    name: "IHOP",
+    emoji: "🥞",
+    category: "Breakfast",
+    vibe: "breakfast",
+    mealType: ["breakfast"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Simple & Fit 2-Egg Breakfast",
+        protein: "26g",
+        desc: "Two eggs, turkey bacon, seasonal fruit, and whole wheat toast. Under 500 calories.",
+        tip: "This is literally designed for people like you. IHOP made this for the RIVEN crowd.",
+        price: 10.99,
+        kidOrder: "Kids Funny Face Pancakes + Eggs"
+      },
+      {
+        name: "Egg White Veggie Omelette",
+        protein: "24g",
+        desc: "Egg whites with spinach, mushrooms, tomatoes, and onions. Light and protein-packed.",
+        tip: "Add a side of turkey bacon for extra protein. Skip the pancakes that come with it.",
+        price: 12.99,
+        kidOrder: "Kids Funny Face Pancakes + Eggs"
+      },
+      {
+        name: "Grilled Chicken & Veggie Salad",
+        protein: "35g",
+        desc: "Grilled chicken breast over mixed greens with tomatoes and cucumbers.",
+        tip: "Yes, IHOP has salads. And this one is actually good. Order it without guilt.",
+        price: 11.99,
+        kidOrder: "Kids Funny Face Pancakes + Eggs"
+      }
+    ],
+    skip: [
+      { name: "Stuffed French Toast", reason: "Over 1,000 calories of cream cheese, sugar, and fried bread." },
+      { name: "Pancake Combos", reason: "A short stack alone is 500 calories. Add syrup and butter? 800+." },
+      { name: "Cupcake Pancakes", reason: "Frosting on pancakes. Over 1,100 calories. A dessert disguised as breakfast." },
+      { name: "Loaded Crepes", reason: "Stuffed with cream, fruit syrup, and whipped cream. 800+ calories." }
+    ]
+  },
+  {
+    id: "chappys",
+    name: "Chappy's Deli",
+    emoji: "☕",
+    category: "Deli / Breakfast",
+    vibe: "breakfast",
+    mealType: ["quickbite", "breakfast"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Grilled Chicken Club",
+        protein: "38g",
+        desc: "Grilled chicken breast with bacon, lettuce, tomato on toasted bread.",
+        tip: "Ask for no mayo. The bacon and chicken already give you plenty of flavor.",
+        price: 10.99,
+        kidOrder: "Kids Grilled Cheese"
+      },
+      {
+        name: "Turkey Sandwich on Wheat",
+        protein: "30g",
+        desc: "Sliced roasted turkey with lettuce, tomato, and mustard on wheat bread.",
+        tip: "Chappy's turkey is fresh-sliced. Way better quality than chain sub shops.",
+        price: 9.99,
+        kidOrder: "Kids Grilled Cheese"
+      },
+      {
+        name: "Chef Salad",
+        protein: "32g",
+        desc: "Mixed greens topped with turkey, ham, egg, cheese, tomato, and cucumber.",
+        tip: "Get the vinaigrette on the side. Light hand on dressing, heavy hand on protein.",
+        price: 10.99,
+        kidOrder: "Kids Grilled Cheese"
+      }
+    ],
+    skip: [
+      { name: "Fried Green Tomatoes", reason: "Montgomery classic but battered and fried. 400+ calories per serving." },
+      { name: "Club Croissant", reason: "The croissant alone is 300 calories of butter and pastry. Get it on wheat." },
+      { name: "Sweet Tea (Large)", reason: "Chappy's sweet tea is dangerously good and dangerously sugary." },
+      { name: "Chocolate Layer Cake", reason: "800+ calories per slice. Save it for someone else's cheat day." }
+    ]
+  },
+  {
+    id: "bigbadbreakfast",
+    name: "Big Bad Breakfast",
+    emoji: "🍳",
+    category: "Breakfast / Brunch",
+    vibe: "breakfast",
+    mealType: ["breakfast"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: false,
+    order: [
+      {
+        name: "Egg White Omelette with Veggies",
+        protein: "28g",
+        desc: "Egg whites with seasonal vegetables and a side of fresh fruit.",
+        tip: "Ask for extra veggies in the omelette. Volume without the calorie penalty.",
+        price: 13.99,
+        kidOrder: "Kids Pancakes + Bacon"
+      },
+      {
+        name: "Protein Plate (2 Eggs + Turkey Sausage)",
+        protein: "32g",
+        desc: "Two eggs any style with turkey sausage links and a side of fruit.",
+        tip: "Turkey sausage has half the fat of pork sausage. Same satisfaction.",
+        price: 12.99,
+        kidOrder: "Kids Pancakes + Bacon"
+      },
+      {
+        name: "Avocado Toast with Fried Egg",
+        protein: "18g",
+        desc: "Mashed avocado on sourdough toast with a fried egg and everything seasoning.",
+        tip: "Add a second egg for extra protein. Avocado gives you healthy fats to keep you full.",
+        price: 11.99,
+        kidOrder: "Kids Pancakes + Bacon"
+      }
+    ],
+    skip: [
+      { name: "Biscuits & Gravy", reason: "800+ calories of cream gravy and butter biscuits. A whole meal in a side." },
+      { name: "Pancake Stack", reason: "Fluffy and delicious but 600+ calories before syrup. Syrup adds 200 more." },
+      { name: "Grillades & Grits", reason: "Sounds Southern and charming. It's 900+ calories of cream and starch." },
+      { name: "Sweet Potato Pancakes", reason: "The word 'sweet potato' makes it sound healthy. It's still 700+ calorie pancakes." }
+    ]
+  },
+
+  // ── LOCAL MONTGOMERY & SURROUNDING AREA ────────────
+
+  {
+    id: "central",
+    name: "Central",
+    emoji: "🏛️",
+    category: "Upscale American",
+    vibe: "steak",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: false,
+    local: true,
+    order: [
+      {
+        name: "Filet Mignon",
+        protein: "50g",
+        desc: "Premium center-cut filet. The leanest steak on the menu, perfectly prepared.",
+        tip: "Date night doesn't have to derail your goals. Filet is clean, lean, and impressive.",
+        price: 38.99,
+        kidOrder: null
+      },
+      {
+        name: "Pan-Seared Salmon",
+        protein: "44g",
+        desc: "Fresh salmon with seasonal vegetables and a light glaze.",
+        tip: "Salmon at Central is beautifully prepared. Healthy fats plus high protein. Win-win.",
+        price: 28.99,
+        kidOrder: null
+      },
+      {
+        name: "Grilled Chicken Breast",
+        protein: "42g",
+        desc: "Farm-fresh chicken breast, simply grilled with herb seasoning.",
+        tip: "Simple doesn't mean boring at Central. Their chicken is next level.",
+        price: 22.99,
+        kidOrder: null
+      }
+    ],
+    skip: [
+      { name: "Truffle Mac & Cheese", reason: "Upscale mac is still mac. 600+ calories of cream and cheese." },
+      { name: "Bread Basket", reason: "Artisan bread and butter is 300+ calories before your meal even arrives." },
+      { name: "Crème Brûlée", reason: "450 calories of custard and sugar. End the night clean." },
+      { name: "Cocktails", reason: "Two craft cocktails can add 500+ liquid calories. Stick with water or wine." }
+    ]
+  },
+  {
+    id: "thehouse",
+    name: "The House Restaurant",
+    emoji: "🏠",
+    category: "Southern Cuisine",
+    vibe: "southern",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: true,
+    order: [
+      {
+        name: "Grilled Catfish",
+        protein: "36g",
+        desc: "Southern-seasoned catfish fillet, grilled instead of fried. Served with two sides.",
+        tip: "Always go grilled at a Southern restaurant. You get the seasoning without the breading.",
+        price: 14.99,
+        kidOrder: "Kids Fried Chicken Tenders"
+      },
+      {
+        name: "Southern Baked Chicken",
+        protein: "44g",
+        desc: "Oven-baked chicken seasoned with Southern spices. Tender and juicy.",
+        tip: "Baked chicken is the smart move. Same soul food flavor, fraction of the calories of fried.",
+        price: 12.99,
+        kidOrder: "Kids Fried Chicken Tenders"
+      },
+      {
+        name: "Smothered Turkey Chops",
+        protein: "40g",
+        desc: "Turkey chops with gravy. Ask for gravy on the side to control the portion.",
+        tip: "Turkey chops are underrated. Lean protein with real Southern flavor.",
+        price: 13.99,
+        kidOrder: "Kids Fried Chicken Tenders"
+      }
+    ],
+    skip: [
+      { name: "Fried Chicken Plate", reason: "The fried version adds 300+ calories of breading. Baked is just as good." },
+      { name: "Mac & Cheese", reason: "Soul food mac & cheese is 500+ calories per serving. Pick turnip greens instead." },
+      { name: "Cornbread (Multiple Pieces)", reason: "One piece is fine. Three pieces is 450+ extra calories." },
+      { name: "Sweet Potato Pie", reason: "400 calories per slice. Save your win from dinner." }
+    ]
+  },
+  {
+    id: "mrsbs",
+    name: "Mrs. B's Home Cooking",
+    emoji: "👩‍🍳",
+    category: "Soul Food",
+    vibe: "southern",
+    mealType: ["quickbite", "sitdown"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: false,
+    kidFriendly: true,
+    local: true,
+    order: [
+      {
+        name: "Baked Chicken",
+        protein: "42g",
+        desc: "Home-style baked chicken, seasoned and tender. The RIVEN go-to at Mrs. B's.",
+        tip: "Baked over fried — always. Mrs. B's baked chicken has the same love, less oil.",
+        price: 10.99,
+        kidOrder: "Kids Baked Chicken Plate"
+      },
+      {
+        name: "Turnip Greens + Baked Chicken Combo",
+        protein: "44g",
+        desc: "Baked chicken with a heaping side of turnip greens and a side of green beans.",
+        tip: "Turnip greens are a Southern superfood. Low calorie, high nutrition. Load up.",
+        price: 11.99,
+        kidOrder: "Kids Baked Chicken Plate"
+      },
+      {
+        name: "Turkey Wings",
+        protein: "38g",
+        desc: "Slow-cooked turkey wings, tender and falling off the bone.",
+        tip: "Turkey wings are a soul food protein gem. Way leaner than pork.",
+        price: 12.99,
+        kidOrder: "Kids Baked Chicken Plate"
+      }
+    ],
+    skip: [
+      { name: "Fried Pork Chops", reason: "Breaded and fried in oil. 600+ calories per chop." },
+      { name: "Candied Yams", reason: "Sweet potatoes drowned in sugar and butter. 350 calories per serving." },
+      { name: "Mac & Cheese", reason: "Mrs. B's mac is incredible. That's the problem — 500+ calories per scoop." },
+      { name: "Cornbread Dressing", reason: "Cornbread crumbled in butter and stock. 400+ calories per serving." }
+    ]
+  },
+  {
+    id: "vintageyear",
+    name: "Vintage Year",
+    emoji: "🍷",
+    category: "Fine Dining / Steak",
+    vibe: "steak",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: false,
+    local: true,
+    order: [
+      {
+        name: "Filet (8 oz)",
+        protein: "54g",
+        desc: "Hand-cut filet mignon. Old Cloverdale's best steak, perfectly prepared.",
+        tip: "This is the date night order. Clean, impressive, and high protein.",
+        price: 42.99,
+        kidOrder: null
+      },
+      {
+        name: "Pan-Seared Grouper",
+        protein: "40g",
+        desc: "Fresh Gulf grouper, pan-seared with a light butter sauce and seasonal vegetables.",
+        tip: "Ask for light butter on the fish. The sear gives you all the flavor.",
+        price: 32.99,
+        kidOrder: null
+      },
+      {
+        name: "Grilled Lamb Chops",
+        protein: "46g",
+        desc: "New Zealand lamb chops, grilled to perfection with rosemary and garlic.",
+        tip: "Lamb is a lean red meat most people overlook. High protein, great flavor.",
+        price: 36.99,
+        kidOrder: null
+      }
+    ],
+    skip: [
+      { name: "Lobster Mac & Cheese", reason: "Even at a nice restaurant, mac & cheese is still a calorie bomb." },
+      { name: "Bread Service", reason: "The warm bread and butter will cost you 300+ calories before your entree." },
+      { name: "Crème Brûlée", reason: "Classic but 450+ calories of cream and sugar." },
+      { name: "Heavy Cream Sauces", reason: "Ask for sauces on the side. They can add 200+ calories when poured on." }
+    ]
+  },
+  {
+    id: "ittabena",
+    name: "Itta Bena",
+    emoji: "🎰",
+    category: "Fine Dining / Steak",
+    vibe: "steak",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: false,
+    local: true,
+    order: [
+      {
+        name: "Delta Filet",
+        protein: "50g",
+        desc: "Premium filet mignon with a Southern-inspired preparation. Wind Creek's finest.",
+        tip: "You're already winning if you're at Itta Bena ordering filet instead of hitting the buffet.",
+        price: 39.99,
+        kidOrder: null
+      },
+      {
+        name: "Pan-Seared Redfish",
+        protein: "38g",
+        desc: "Gulf redfish, blackened and pan-seared with a light lemon butter sauce.",
+        tip: "Redfish is a Southern delicacy with great protein. Ask for sauce on the side.",
+        price: 28.99,
+        kidOrder: null
+      },
+      {
+        name: "Grilled Lamb Chops",
+        protein: "46g",
+        desc: "Double-cut lamb chops with herb crust and seasonal vegetables.",
+        tip: "Lamb chops here are outstanding. Lean protein with incredible flavor.",
+        price: 34.99,
+        kidOrder: null
+      }
+    ],
+    skip: [
+      { name: "Crawfish Dip", reason: "Creamy, cheesy dip at 500+ calories. The crawfish deserved better." },
+      { name: "Fried Green Tomatoes", reason: "Battered and fried. 400+ calories to start your meal." },
+      { name: "Mississippi Mud Pie", reason: "800+ calories of chocolate, cream, and crust. Walk away." },
+      { name: "Bread Pudding", reason: "600 calories of sugar-soaked bread. Not how you end a RIVEN meal." }
+    ]
+  },
+  {
+    id: "hilltop",
+    name: "Hilltop Public House",
+    emoji: "⛰️",
+    category: "Pub / American",
+    vibe: "southern",
+    mealType: ["sitdown", "latenight"],
+    time: "10to20",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: true,
+    order: [
+      {
+        name: "Grilled Burger (No Bun, Lettuce Wrap)",
+        protein: "32g",
+        desc: "House-ground burger patty wrapped in lettuce with mustard and pickles.",
+        tip: "Going bunless at a pub saves you 250+ calories. All the burger flavor, none of the bread.",
+        price: 13.99,
+        kidOrder: "Kids Burger"
+      },
+      {
+        name: "Blackened Fish Tacos",
+        protein: "30g",
+        desc: "Blackened fish in corn tortillas with slaw and lime crema on the side.",
+        tip: "Ask for crema on the side. The blackened seasoning carries the flavor.",
+        price: 14.99,
+        kidOrder: "Kids Burger"
+      },
+      {
+        name: "Grilled Chicken Sandwich",
+        protein: "36g",
+        desc: "Grilled chicken breast on a toasted bun with lettuce, tomato, and mustard.",
+        tip: "Simple and effective. The grilled chicken is always the safe RIVEN bet at a pub.",
+        price: 12.99,
+        kidOrder: "Kids Burger"
+      }
+    ],
+    skip: [
+      { name: "Loaded Nachos", reason: "800+ calories of chips, cheese, sour cream, and guac. A meal disguised as an appetizer." },
+      { name: "Fish & Chips", reason: "Battered and deep-fried fish with fries. 1,000+ calories." },
+      { name: "Beer Cheese Dip", reason: "400 calories of melted cheese before you even dip a chip." },
+      { name: "Brownie Sundae", reason: "700+ calories of chocolate, ice cream, and whipped cream." }
+    ]
+  },
+  {
+    id: "corkandcleaver",
+    name: "Cork & Cleaver",
+    emoji: "🔪",
+    category: "Steakhouse",
+    vibe: "steak",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: false,
+    local: true,
+    order: [
+      {
+        name: "NY Strip (10 oz)",
+        protein: "56g",
+        desc: "Hand-cut New York strip steak, grilled to your preference.",
+        tip: "Strip steak is a great balance of flavor and leanness. Go medium or medium-rare.",
+        price: 36.99,
+        kidOrder: null
+      },
+      {
+        name: "Grilled Salmon",
+        protein: "42g",
+        desc: "Fresh Atlantic salmon, wood-grilled with seasonal vegetables.",
+        tip: "Salmon is always RIVEN-approved. Omega-3 fats keep you full and support recovery.",
+        price: 28.99,
+        kidOrder: null
+      },
+      {
+        name: "Bone-In Ribeye",
+        protein: "58g",
+        desc: "20 oz bone-in ribeye. The most flavorful cut — split it with someone if the portion is huge.",
+        tip: "Ribeye is fattier than filet, but insane protein. Share it or eat half, save the rest.",
+        price: 44.99,
+        kidOrder: null
+      }
+    ],
+    skip: [
+      { name: "French Onion Soup", reason: "Loaded with cheese and croutons. 450+ calories as a starter." },
+      { name: "Truffle Fries", reason: "Fancy fries are still fries. 500+ calories of fried potatoes." },
+      { name: "Loaded Baked Potato", reason: "Butter, sour cream, cheese, and bacon turn a potato into 600+ calories." },
+      { name: "Chocolate Torte", reason: "550 calories of rich chocolate dessert. End your night clean." }
+    ]
+  },
+  {
+    id: "oaktavern",
+    name: "Oak Tavern",
+    emoji: "🌳",
+    category: "American / Southern",
+    vibe: "southern",
+    mealType: ["sitdown"],
+    time: "gottime",
+    driveThru: false,
+    dateNight: true,
+    kidFriendly: true,
+    local: true,
+    order: [
+      {
+        name: "Grilled Salmon",
+        protein: "42g",
+        desc: "Fresh salmon grilled with seasonal preparation and vegetables.",
+        tip: "Oak Tavern does their salmon right. Worth the drive to Prattville.",
+        price: 22.99,
+        kidOrder: "Kids Grilled Chicken Tenders"
+      },
+      {
+        name: "Wood-Fired Chicken",
+        protein: "40g",
+        desc: "Half chicken roasted over wood fire with herbs and seasonal sides.",
+        tip: "Wood-fired chicken is RIVEN gold. All the flavor, naturally lean cooking method.",
+        price: 18.99,
+        kidOrder: "Kids Grilled Chicken Tenders"
+      },
+      {
+        name: "Blackened Chicken Salad",
+        protein: "36g",
+        desc: "Blackened chicken breast over mixed greens with balsamic vinaigrette.",
+        tip: "Dressing on the side, always. Two tablespoons is plenty.",
+        price: 14.99,
+        kidOrder: "Kids Grilled Chicken Tenders"
+      }
+    ],
+    skip: [
+      { name: "Oak Tavern Nachos", reason: "Loaded nachos are 800+ calories before your actual dinner." },
+      { name: "Loaded Tots", reason: "Tater tots covered in cheese and toppings. 600+ calories of fried sides." },
+      { name: "Fried Appetizers", reason: "If it's battered and fried, it's adding 400+ unnecessary calories." },
+      { name: "Dessert Board", reason: "A sampler of sweets that'll undo your entire smart dinner. Walk away." }
+    ]
+  }
+];
+
+// ============================================================
+// DECISION ENGINE — Vibe options per meal type
+// ============================================================
+const vibeOptions = {
+  quickbite: [
+    { value: "chicken", emoji: "🍗", label: "Chicken" },
+    { value: "burgers", emoji: "🍔", label: "Burgers" },
+    { value: "mexican", emoji: "🌯", label: "Mexican" },
+    { value: "subs", emoji: "🥖", label: "Subs" }
+  ],
+  sitdown: [
+    { value: "steak", emoji: "🥩", label: "Steak" },
+    { value: "italian", emoji: "🍝", label: "Italian" },
+    { value: "southern", emoji: "🪵", label: "Southern" },
+    { value: "seafood", emoji: "🐟", label: "Seafood" }
+  ],
+  breakfast: [
+    { value: "breakfast", emoji: "🧇", label: "Classic Breakfast" },
+    { value: "chicken", emoji: "🐔", label: "Chicken" },
+    { value: "burgers", emoji: "🍳", label: "Egg Sandwiches" },
+    { value: "southern", emoji: "🪵", label: "Southern" }
+  ],
+  latenight: [
+    { value: "mexican", emoji: "🌮", label: "Mexican" },
+    { value: "chicken", emoji: "🍗", label: "Chicken" },
+    { value: "burgers", emoji: "🍔", label: "Burgers" },
+    { value: "breakfast", emoji: "🧇", label: "Breakfast" }
+  ]
+};
+
+// Find restaurants matching the decision flow
+function findMatches(mealType, time, vibe) {
+  return restaurants.filter(r =>
+    isAvailable(r) &&
+    r.mealType.includes(mealType) &&
+    r.vibe === vibe
+  ).sort((a, b) => {
+    // Prefer time match
+    if (a.time === time && b.time !== time) return -1;
+    if (b.time === time && a.time !== time) return 1;
+    // Then by highest protein in first order item
+    const aP = parseInt(a.order[0].protein);
+    const bP = parseInt(b.order[0].protein);
+    return bP - aP;
+  });
+}
+
+// Fallback: broaden search if no exact vibe match
+function findMatchesBroad(mealType, time) {
+  return restaurants.filter(r =>
+    isAvailable(r) &&
+    r.mealType.includes(mealType)
+  ).sort((a, b) => {
+    if (a.time === time && b.time !== time) return -1;
+    if (b.time === time && a.time !== time) return 1;
+    const aP = parseInt(a.order[0].protein);
+    const bP = parseInt(b.order[0].protein);
+    return bP - aP;
+  });
+}
+
+// ============================================================
+// DOM REFERENCES
+// ============================================================
+const screenMain = document.getElementById('screenMain');
+const screenDetail = document.getElementById('screenDetail');
+const detailTitle = document.getElementById('detailTitle');
+const detailCategory = document.getElementById('detailCategory');
+const detailBody = document.getElementById('detailBody');
+const backBtn = document.getElementById('backBtn');
+const searchInput = document.getElementById('searchInput');
+const restaurantGrid = document.getElementById('restaurantGrid');
+const decideCard = document.getElementById('decideCard');
+const screenDecide = document.getElementById('screenDecide');
+const decideClose = document.getElementById('decideClose');
+const decideBody = document.getElementById('decideBody');
+const progressDots = document.getElementById('progressDots');
+
+// Location state
+let userLocation = "anywhere"; // "anywhere" or "montgomery"
+
+function isAvailable(r) {
+  if (userLocation === "montgomery") return true;
+  return !r.local;
+}
+
+// ============================================================
+// RENDER RESTAURANT GRID
+// ============================================================
+function renderGrid(filter = "") {
+  const lowerFilter = filter.toLowerCase().trim();
+  const filtered = restaurants.filter(r =>
+    isAvailable(r) &&
+    (r.name.toLowerCase().includes(lowerFilter) ||
+    r.category.toLowerCase().includes(lowerFilter))
+  );
+
+  if (filtered.length === 0) {
+    restaurantGrid.innerHTML = '<div class="no-results">No restaurants found. Try a different search.</div>';
+    return;
+  }
+
+  restaurantGrid.innerHTML = filtered.map(r => `
+    <div class="card" data-id="${r.id}" role="button" tabindex="0">
+      <div class="card-emoji">${r.emoji}</div>
+      <div class="card-name">${r.name}</div>
+      <div class="card-category">${r.category}</div>
+    </div>
+  `).join('');
+}
+
+renderGrid();
+
+// ============================================================
+// SEARCH
+// ============================================================
+searchInput.addEventListener('input', (e) => renderGrid(e.target.value));
+
+// ============================================================
+// RESTAURANT DETAIL
+// ============================================================
+function openDetail(restaurantId) {
+  const r = restaurants.find(x => x.id === restaurantId);
+  if (!r) return;
+
+  detailTitle.textContent = r.emoji + " " + r.name;
+  detailCategory.textContent = r.category;
+
+  let html = '';
+  html += `<div class="section-heading"><span class="dot green"></span><h2>Order This</h2></div>`;
+  r.order.forEach(item => {
+    html += `
+      <div class="order-card">
+        <div class="order-card-top">
+          <div class="order-item-name">${item.name}</div>
+          <div class="protein-badge">${item.protein} protein</div>
+        </div>
+        <div class="order-desc">${item.desc}</div>
+        <div class="coach-tip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+          <p>${item.tip}</p>
+        </div>
+      </div>`;
+  });
+
+  html += `<div class="skip-section"><div class="section-heading"><span class="dot red"></span><h2>Skip This</h2></div>`;
+  r.skip.forEach(item => {
+    html += `
+      <div class="skip-card">
+        <span class="x-icon">✕</span>
+        <div class="skip-text">
+          <div class="skip-name">${item.name}</div>
+          <div class="skip-reason">${item.reason}</div>
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+
+  detailBody.innerHTML = html;
+  screenDetail.scrollTop = 0;
+  screenMain.classList.add('pushed');
+  screenDetail.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+  screenMain.classList.remove('pushed');
+  screenDetail.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+restaurantGrid.addEventListener('click', (e) => {
+  const card = e.target.closest('.card');
+  if (card) openDetail(card.dataset.id);
+});
+
+backBtn.addEventListener('click', closeDetail);
+
+// Swipe right to go back
+let touchStartX = 0, touchStartY = 0;
+screenDetail.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+screenDetail.addEventListener('touchend', (e) => {
+  const deltaX = e.changedTouches[0].clientX - touchStartX;
+  const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
+  if (deltaX > 80 && deltaY < 100) closeDetail();
+}, { passive: true });
+
+// ============================================================
+// DECISION FLOW (4-Step)
+// ============================================================
+let dStep = 0;
+let dMealType = "";
+let dTime = "";
+let dVibe = "";
+let dPickIndex = 0;
+
+// Quick Filter state
+let qfMode = null;      // null = normal flow, else 'drivethru','datenight','withkids','breakfast','cheapprotein'
+let qfMatches = [];
+let qfPickIndex = 0;
+
+function updateLocationUI() {
+  const locCity = document.getElementById('locCity');
+  const locChange = document.getElementById('locChange');
+  if (userLocation === "montgomery") {
+    locCity.innerHTML = 'Montgomery, AL';
+    locChange.textContent = 'Change';
+  } else {
+    locCity.innerHTML = 'Anywhere <span class="loc-sub">— Chains Only</span>';
+    locChange.textContent = 'Near Montgomery?';
+  }
+}
+
+function toggleLocation() {
+  userLocation = userLocation === "montgomery" ? "anywhere" : "montgomery";
+  updateLocationUI();
+  renderGrid(searchInput.value);
+}
+
+function openDecide() {
+  dStep = 1;
+  dMealType = "";
+  dTime = "";
+  dVibe = "";
+  dPickIndex = 0;
+  screenDecide.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  renderDecideStep();
+}
+
+function closeDecide() {
+  screenDecide.classList.remove('active');
+  document.body.style.overflow = '';
+  // Reset quick filter state
+  qfMode = null;
+  qfMatches = [];
+  qfPickIndex = 0;
+  // Restore header text
+  document.querySelector('.decide-header-text').textContent = 'Quick Pick';
+}
+
+function renderProgress() {
+  const total = 4;
+  let dots = '';
+  for (let i = 1; i <= total; i++) {
+    let cls = 'progress-dot';
+    if (i < dStep) cls += ' done';
+    if (i === dStep) cls += ' active';
+    dots += `<div class="${cls}"></div>`;
+  }
+  progressDots.innerHTML = dots;
+}
+
+function renderDecideStep() {
+  renderProgress();
+  screenDecide.scrollTo(0, 0);
+
+  if (dStep === 1) {
+    decideBody.innerHTML = `
+      <div class="step-question">What kind of meal?</div>
+      <p class="step-subtitle">Pick one and we'll narrow it down</p>
+      <div class="step-options" id="stepOptions">
+        <button class="step-option" data-value="quickbite">
+          <span class="opt-emoji">⚡</span>
+          <span class="opt-label">Quick Bite</span>
+        </button>
+        <button class="step-option" data-value="sitdown">
+          <span class="opt-emoji">🍽️</span>
+          <span class="opt-label">Sit-Down Dinner</span>
+        </button>
+        <button class="step-option" data-value="breakfast">
+          <span class="opt-emoji">🌅</span>
+          <span class="opt-label">Breakfast</span>
+        </button>
+        <button class="step-option" data-value="latenight">
+          <span class="opt-emoji">🌙</span>
+          <span class="opt-label">Late Night</span>
+        </button>
+      </div>`;
+  } else if (dStep === 2) {
+    decideBody.innerHTML = `
+      <div class="step-question">How much time do you have?</div>
+      <p class="step-subtitle">We'll match the speed</p>
+      <div class="step-options single-col" id="stepOptions">
+        <button class="step-option" data-value="under10">
+          <span class="opt-emoji">⚡</span>
+          <div class="opt-text">
+            <span class="opt-label">Under 10 minutes</span>
+            <span class="opt-sub">Drive-thru or grab and go</span>
+          </div>
+        </button>
+        <button class="step-option" data-value="10to20">
+          <span class="opt-emoji">🕐</span>
+          <div class="opt-text">
+            <span class="opt-label">10–20 minutes</span>
+            <span class="opt-sub">Quick counter service</span>
+          </div>
+        </button>
+        <button class="step-option" data-value="gottime">
+          <span class="opt-emoji">🍷</span>
+          <div class="opt-text">
+            <span class="opt-label">I've got time</span>
+            <span class="opt-sub">Sit down, no rush</span>
+          </div>
+        </button>
+      </div>`;
+  } else if (dStep === 3) {
+    const vibes = vibeOptions[dMealType] || vibeOptions.quickbite;
+    let vibeHtml = vibes.map(v => `
+      <button class="step-option" data-value="${v.value}">
+        <span class="opt-emoji">${v.emoji}</span>
+        <span class="opt-label">${v.label}</span>
+      </button>
+    `).join('');
+
+    decideBody.innerHTML = `
+      <div class="step-question">What sounds good?</div>
+      <p class="step-subtitle">Go with your gut</p>
+      <div class="step-options" id="stepOptions">
+        ${vibeHtml}
+      </div>`;
+  } else if (dStep === 4) {
+    renderResult();
+  }
+}
+
+function renderResult() {
+  renderProgress();
+
+  let matches = findMatches(dMealType, dTime, dVibe);
+  if (matches.length === 0) matches = findMatchesBroad(dMealType, dTime);
+  if (matches.length === 0) matches = [restaurants[0]]; // ultimate fallback
+
+  // Wrap index if cycled past end
+  if (dPickIndex >= matches.length) dPickIndex = 0;
+
+  const pick = matches[dPickIndex];
+  const item = pick.order[0];
+  const hasMore = matches.length > 1;
+
+  decideBody.innerHTML = `
+    <div class="result-wrap">
+      <div class="result-label">Your RIVEN Pick</div>
+      <div class="result-restaurant">${pick.emoji} ${pick.name}</div>
+      <div class="result-category">${pick.category}</div>
+      <div class="result-card">
+        <div class="order-item-name">${item.name}</div>
+        <div class="protein-badge">${item.protein} protein</div>
+        <div class="order-desc">${item.desc}</div>
+        <div class="coach-tip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+          <p>${item.tip}</p>
+        </div>
+      </div>
+      <button class="result-done-btn" id="resultDone">Got It</button>
+      ${hasMore ? `<button class="result-alt-btn" id="showAlts">show me another option</button>` : ''}
+      <button class="result-alt-btn" id="resultRetry" style="text-decoration:none;color:var(--text-muted);opacity:0.7;">Start Over</button>
+    </div>`;
+}
+
+// Decision flow event delegation
+decideBody.addEventListener('click', (e) => {
+  const option = e.target.closest('.step-option');
+  if (option && dStep >= 1 && dStep <= 3) {
+    const val = option.dataset.value;
+    if (dStep === 1) { dMealType = val; dStep = 2; }
+    else if (dStep === 2) { dTime = val; dStep = 3; }
+    else if (dStep === 3) { dVibe = val; dStep = 4; }
+    renderDecideStep();
+    return;
+  }
+
+  if (e.target.id === 'resultDone') {
+    closeDecide();
+    return;
+  }
+
+  if (e.target.id === 'showAlts') {
+    if (qfMode) {
+      qfPickIndex++;
+      renderQuickFilterResult();
+    } else {
+      dPickIndex++;
+      renderResult();
+    }
+    return;
+  }
+
+  if (e.target.id === 'resultRetry') {
+    if (qfMode) {
+      closeDecide();
+    } else {
+      dStep = 1;
+      dMealType = "";
+      dTime = "";
+      dVibe = "";
+      dPickIndex = 0;
+      renderDecideStep();
+    }
+    return;
+  }
+
+  // Alt card tap → open that restaurant detail
+  const altCard = e.target.closest('.alt-card');
+  if (altCard) {
+    closeDecide();
+    setTimeout(() => openDetail(altCard.dataset.id), 350);
+  }
+});
+
+decideCard.addEventListener('click', openDecide);
+decideClose.addEventListener('click', closeDecide);
+
+// Location toggle
+document.getElementById('locChange').addEventListener('click', toggleLocation);
+
+// ============================================================
+// QUICK FILTER MODES
+// ============================================================
+const qfModeLabels = {
+  drivethru: '🚗 Drive-Thru Mode',
+  datenight: '💃 Date Night Mode',
+  withkids: '👶 Eating with Kids',
+  breakfast: '🌅 Breakfast Mode',
+  cheapprotein: '💰 Quick & Cheap'
+};
+
+function getQuickFilterMatches(mode) {
+  let results = [];
+  if (mode === 'drivethru') {
+    results = restaurants.filter(r => isAvailable(r) && r.driveThru === true);
+  } else if (mode === 'datenight') {
+    results = restaurants.filter(r => isAvailable(r) && r.dateNight === true);
+  } else if (mode === 'withkids') {
+    results = restaurants.filter(r => isAvailable(r) && r.kidFriendly === true);
+  } else if (mode === 'breakfast') {
+    results = restaurants.filter(r => isAvailable(r) && r.mealType.includes('breakfast'));
+  } else if (mode === 'cheapprotein') {
+    results = restaurants.filter(r => isAvailable(r) && getBestCheapItem(r) !== null);
+  }
+  // Sort by highest protein of first order item
+  results.sort((a, b) => {
+    const aP = parseInt(a.order[0].protein);
+    const bP = parseInt(b.order[0].protein);
+    return bP - aP;
+  });
+  return results;
+}
+
+function getBestCheapItem(restaurant) {
+  // Find the highest-protein order item that's ≤ $10 and ≥ 30g protein
+  let best = null;
+  for (const item of restaurant.order) {
+    if (item.price && item.price <= 10) {
+      const p = parseInt(item.protein);
+      if (p >= 30) {
+        if (!best || p > parseInt(best.protein)) best = item;
+      }
+    }
+  }
+  return best;
+}
+
+function openQuickFilter(mode) {
+  qfMode = mode;
+  qfMatches = getQuickFilterMatches(mode);
+  qfPickIndex = 0;
+
+  // Update header
+  document.querySelector('.decide-header-text').textContent = qfModeLabels[mode] || 'Quick Filter';
+
+  // Hide progress dots
+  progressDots.innerHTML = '';
+
+  // Open overlay
+  screenDecide.classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  renderQuickFilterResult();
+}
+
+function renderQuickFilterResult() {
+  if (qfMatches.length === 0) {
+    decideBody.innerHTML = `
+      <div class="result-wrap">
+        <div class="result-label">No Matches</div>
+        <p style="color:var(--text-muted);text-align:center;margin-top:20px;">No restaurants match this filter right now.</p>
+        <button class="result-done-btn" id="resultDone" style="margin-top:24px;">Close</button>
+      </div>`;
+    return;
+  }
+
+  if (qfPickIndex >= qfMatches.length) qfPickIndex = 0;
+
+  const pick = qfMatches[qfPickIndex];
+  const hasMore = qfMatches.length > 1;
+
+  // For cheapprotein mode, use the best cheap item; otherwise use first order item
+  let item, showPriceBadge = false;
+  if (qfMode === 'cheapprotein') {
+    item = getBestCheapItem(pick);
+    if (!item) item = pick.order[0]; // fallback
+    showPriceBadge = true;
+  } else {
+    item = pick.order[0];
+  }
+
+  // Kid order row for withkids mode
+  let kidOrderHtml = '';
+  if (qfMode === 'withkids' && item.kidOrder) {
+    kidOrderHtml = `
+      <div class="kid-order-row">
+        <span class="kid-icon">🧒</span>
+        <div class="kid-text">
+          <div class="kid-label">For the Kids</div>
+          <div class="kid-order-name">${item.kidOrder}</div>
+        </div>
+      </div>`;
+  }
+
+  // Badge row
+  let badgeHtml = `<div class="protein-badge">${item.protein} protein</div>`;
+  if (showPriceBadge && item.price) {
+    badgeHtml = `<div class="result-badges">
+      <div class="protein-badge">${item.protein} protein</div>
+      <div class="price-badge">$${item.price.toFixed(2)}</div>
+    </div>`;
+  }
+
+  decideBody.innerHTML = `
+    <div class="result-wrap">
+      <div class="result-label">Your RIVEN Pick</div>
+      <div class="result-restaurant">${pick.emoji} ${pick.name}</div>
+      <div class="result-category">${pick.category}</div>
+      <div class="result-card">
+        <div class="order-item-name">${item.name}</div>
+        ${badgeHtml}
+        <div class="order-desc">${item.desc}</div>
+        <div class="coach-tip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+          <p>${item.tip}</p>
+        </div>
+        ${kidOrderHtml}
+      </div>
+      <button class="result-done-btn" id="resultDone">Got It</button>
+      ${hasMore ? '<button class="result-alt-btn" id="showAlts">show me another option</button>' : ''}
+      <button class="result-alt-btn" id="resultRetry" style="text-decoration:none;color:var(--text-muted);opacity:0.7;">Close</button>
+    </div>`;
+  screenDecide.scrollTo(0, 0);
+}
+
+// Quick filter pill clicks
+document.getElementById('quickFilters').addEventListener('click', (e) => {
+  const pill = e.target.closest('.qf-pill');
+  if (pill) openQuickFilter(pill.dataset.mode);
+});
+
+// ============================================================
+// IP GEOLOCATION — auto-detect Montgomery, AL
+// ============================================================
+(async function detectLocation() {
+  try {
+    const res = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.city && data.city.toLowerCase().includes('montgomery') &&
+        data.region && data.region.toLowerCase() === 'alabama') {
+      userLocation = "montgomery";
+      updateLocationUI();
+      renderGrid(searchInput.value);
+    }
+  } catch (e) {
+    // Silently fail — default "anywhere" is safe
+  }
+})();
+</script>
+</body>
+</html>
