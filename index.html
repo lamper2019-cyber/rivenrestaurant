@@ -206,20 +206,17 @@ body { position: relative; }
 
 /* ---- Quick Filter Pills ---- */
 .quick-filters {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
   padding: 4px 0 18px;
   margin-top: 4px;
 }
-.quick-filters::-webkit-scrollbar { display: none; }
 
 .qf-pill {
-  flex-shrink: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 10px 16px;
   background: var(--card);
@@ -230,7 +227,6 @@ body { position: relative; }
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, transform 0.15s;
-  white-space: nowrap;
   user-select: none;
 }
 .qf-pill:active {
@@ -239,6 +235,90 @@ body { position: relative; }
   border-color: var(--gold);
 }
 .qf-pill .qf-icon { font-size: 1rem; line-height: 1; }
+
+/* ---- Browse Restaurants Overlay (I Know My Spot) ---- */
+.screen-browse {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: var(--bg);
+  z-index: 90;
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+.screen-browse.active { transform: translateY(0); }
+
+.browse-header {
+  padding: calc(var(--safe-top) + 14px) 16px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.browse-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--card);
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+}
+.browse-close:active { background: var(--card-hover); }
+.browse-close svg { width: 20px; height: 20px; }
+
+.browse-header-text {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.browse-body {
+  flex: 1;
+  padding: 0 16px calc(var(--safe-bottom) + 20px);
+}
+
+.browse-search-wrap {
+  position: relative;
+  margin: 4px 0 16px;
+}
+.browse-search-wrap svg {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  width: 18px; height: 18px;
+  pointer-events: none;
+}
+.browse-search {
+  width: 100%;
+  padding: 14px 14px 14px 42px;
+  background: var(--card);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.browse-search::placeholder { color: var(--text-muted); }
+.browse-search:focus { border-color: var(--gold); }
+
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
 
 /* ---- Kid Order Row (With Kids mode) ---- */
 .kid-order-row {
@@ -859,6 +939,7 @@ body { position: relative; }
       <button class="qf-pill" data-mode="withkids"><span class="qf-icon">👶</span> With Kids</button>
       <button class="qf-pill" data-mode="breakfast"><span class="qf-icon">🌅</span> Breakfast</button>
       <button class="qf-pill" data-mode="cheapprotein"><span class="qf-icon">💰</span> Quick & Cheap</button>
+      <button class="qf-pill" id="knowMySpotBtn"><span class="qf-icon">🍽️</span> I Know My Spot</button>
     </div>
 
     <p class="section-label">All Restaurants</p>
@@ -889,6 +970,23 @@ body { position: relative; }
     </div>
     <div class="progress-dots" id="progressDots"></div>
     <div class="decide-body" id="decideBody"></div>
+  </div>
+
+  <!-- Browse Restaurants Overlay (I Know My Spot) -->
+  <div class="screen-browse" id="screenBrowse">
+    <div class="browse-header">
+      <button class="browse-close" id="browseClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+      <span class="browse-header-text">Browse Restaurants</span>
+    </div>
+    <div class="browse-body">
+      <div class="browse-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" class="browse-search" id="browseSearch" placeholder="Search restaurants...">
+      </div>
+      <div class="browse-grid" id="browseGrid"></div>
+    </div>
   </div>
 
   <!-- CTA Footer -->
@@ -3249,6 +3347,11 @@ const screenDecide = document.getElementById('screenDecide');
 const decideClose = document.getElementById('decideClose');
 const decideBody = document.getElementById('decideBody');
 const progressDots = document.getElementById('progressDots');
+const screenBrowse = document.getElementById('screenBrowse');
+const browseClose = document.getElementById('browseClose');
+const browseSearch = document.getElementById('browseSearch');
+const browseGrid = document.getElementById('browseGrid');
+let browseOverlayOpen = false;
 
 // Location state
 let userLocation = "anywhere"; // "anywhere" or "montgomery"
@@ -3332,15 +3435,15 @@ function openDetail(restaurantId) {
 
   detailBody.innerHTML = html;
   screenDetail.scrollTop = 0;
-  screenMain.classList.add('pushed');
+  if (!browseOverlayOpen) screenMain.classList.add('pushed');
   screenDetail.classList.add('active');
   document.body.style.overflow = 'hidden';
 }
 
 function closeDetail() {
-  screenMain.classList.remove('pushed');
+  if (!browseOverlayOpen) screenMain.classList.remove('pushed');
   screenDetail.classList.remove('active');
-  document.body.style.overflow = '';
+  if (!browseOverlayOpen) document.body.style.overflow = '';
 }
 
 restaurantGrid.addEventListener('click', (e) => {
@@ -3393,6 +3496,7 @@ function toggleLocation() {
   userLocation = userLocation === "montgomery" ? "anywhere" : "montgomery";
   updateLocationUI();
   renderGrid(searchInput.value);
+  if (browseOverlayOpen) renderBrowseGrid(browseSearch.value);
 }
 
 function openDecide() {
@@ -3727,10 +3831,59 @@ function renderQuickFilterResult() {
   screenDecide.scrollTo(0, 0);
 }
 
+// ============================================================
+// BROWSE RESTAURANTS OVERLAY ("I Know My Spot")
+// ============================================================
+function renderBrowseGrid(filter = "") {
+  const lowerFilter = filter.toLowerCase().trim();
+  const filtered = restaurants.filter(r =>
+    isAvailable(r) &&
+    (r.name.toLowerCase().includes(lowerFilter) ||
+    r.category.toLowerCase().includes(lowerFilter))
+  );
+
+  if (filtered.length === 0) {
+    browseGrid.innerHTML = '<div class="no-results">No restaurants found. Try a different search.</div>';
+    return;
+  }
+
+  browseGrid.innerHTML = filtered.map(r => `
+    <div class="card" data-id="${r.id}" role="button" tabindex="0">
+      <div class="card-emoji">${r.emoji}</div>
+      <div class="card-name">${r.name}</div>
+      <div class="card-category">${r.category}</div>
+    </div>
+  `).join('');
+}
+
+function openBrowse() {
+  browseOverlayOpen = true;
+  browseSearch.value = '';
+  renderBrowseGrid();
+  screenBrowse.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBrowse() {
+  browseOverlayOpen = false;
+  screenBrowse.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+browseSearch.addEventListener('input', (e) => renderBrowseGrid(e.target.value));
+
+browseGrid.addEventListener('click', (e) => {
+  const card = e.target.closest('.card');
+  if (card) openDetail(card.dataset.id);
+});
+
+browseClose.addEventListener('click', closeBrowse);
+document.getElementById('knowMySpotBtn').addEventListener('click', openBrowse);
+
 // Quick filter pill clicks
 document.getElementById('quickFilters').addEventListener('click', (e) => {
   const pill = e.target.closest('.qf-pill');
-  if (pill) openQuickFilter(pill.dataset.mode);
+  if (pill && pill.dataset.mode) openQuickFilter(pill.dataset.mode);
 });
 
 // ============================================================

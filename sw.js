@@ -1,4 +1,4 @@
-const CACHE_NAME = 'riven-guide-v1';
+const CACHE_NAME = 'riven-guide-v2';
 const ASSETS = [
   '/',
   '/index.html',
