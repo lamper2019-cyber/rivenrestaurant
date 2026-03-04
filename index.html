@@ -906,13 +906,7 @@ body { position: relative; }
       <p class="tagline">Pick your spot. We'll tell you what to order.</p>
     </div>
 
-    <!-- Path 1: Search -->
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" class="search-input" id="searchInput" placeholder="Search restaurants...">
-    </div>
-
-    <!-- Path 2: Help Me Decide -->
+    <!-- Help Me Decide -->
     <div class="decide-card" id="decideCard">
       <div class="decide-card-top">
         <div class="decide-icon">
@@ -942,8 +936,6 @@ body { position: relative; }
       <button class="qf-pill" id="knowMySpotBtn"><span class="qf-icon">🍽️</span> I Know My Spot</button>
     </div>
 
-    <p class="section-label">All Restaurants</p>
-    <div class="grid" id="restaurantGrid"></div>
   </div>
 
   <!-- Detail Screen -->
@@ -989,10 +981,6 @@ body { position: relative; }
     </div>
   </div>
 
-  <!-- CTA Footer -->
-  <div class="cta-footer">
-    <a href="https://www.rivenprogram.com" target="_blank" rel="noopener" class="cta-btn">Get the Full RIVEN Program</a>
-  </div>
 </div>
 
 <script>
@@ -3340,8 +3328,6 @@ const detailTitle = document.getElementById('detailTitle');
 const detailCategory = document.getElementById('detailCategory');
 const detailBody = document.getElementById('detailBody');
 const backBtn = document.getElementById('backBtn');
-const searchInput = document.getElementById('searchInput');
-const restaurantGrid = document.getElementById('restaurantGrid');
 const decideCard = document.getElementById('decideCard');
 const screenDecide = document.getElementById('screenDecide');
 const decideClose = document.getElementById('decideClose');
@@ -3360,38 +3346,6 @@ function isAvailable(r) {
   if (userLocation === "montgomery") return true;
   return !r.local;
 }
-
-// ============================================================
-// RENDER RESTAURANT GRID
-// ============================================================
-function renderGrid(filter = "") {
-  const lowerFilter = filter.toLowerCase().trim();
-  const filtered = restaurants.filter(r =>
-    isAvailable(r) &&
-    (r.name.toLowerCase().includes(lowerFilter) ||
-    r.category.toLowerCase().includes(lowerFilter))
-  );
-
-  if (filtered.length === 0) {
-    restaurantGrid.innerHTML = '<div class="no-results">No restaurants found. Try a different search.</div>';
-    return;
-  }
-
-  restaurantGrid.innerHTML = filtered.map(r => `
-    <div class="card" data-id="${r.id}" role="button" tabindex="0">
-      <div class="card-emoji">${r.emoji}</div>
-      <div class="card-name">${r.name}</div>
-      <div class="card-category">${r.category}</div>
-    </div>
-  `).join('');
-}
-
-renderGrid();
-
-// ============================================================
-// SEARCH
-// ============================================================
-searchInput.addEventListener('input', (e) => renderGrid(e.target.value));
 
 // ============================================================
 // RESTAURANT DETAIL
@@ -3446,11 +3400,6 @@ function closeDetail() {
   if (!browseOverlayOpen) document.body.style.overflow = '';
 }
 
-restaurantGrid.addEventListener('click', (e) => {
-  const card = e.target.closest('.card');
-  if (card) openDetail(card.dataset.id);
-});
-
 backBtn.addEventListener('click', closeDetail);
 
 // Swipe right to go back
@@ -3495,7 +3444,6 @@ function updateLocationUI() {
 function toggleLocation() {
   userLocation = userLocation === "montgomery" ? "anywhere" : "montgomery";
   updateLocationUI();
-  renderGrid(searchInput.value);
   if (browseOverlayOpen) renderBrowseGrid(browseSearch.value);
 }
 
@@ -3898,7 +3846,6 @@ document.getElementById('quickFilters').addEventListener('click', (e) => {
         data.region && data.region.toLowerCase() === 'alabama') {
       userLocation = "montgomery";
       updateLocationUI();
-      renderGrid(searchInput.value);
     }
   } catch (e) {
     // Silently fail — default "anywhere" is safe
