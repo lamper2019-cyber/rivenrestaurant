@@ -23,8 +23,9 @@
   --bg: #111111;
   --card: #1E1E1E;
   --card-hover: #252525;
-  --gold: #C4A265;
-  --gold-dim: rgba(196, 162, 101, 0.15);
+  --gold: #D4AF6A;
+  --gold-dim: rgba(212, 175, 106, 0.15);
+  --gold-glow: rgba(212, 175, 106, 0.3);
   --text: #F5F0EB;
   --text-muted: #8A8580;
   --green: #6B8F71;
@@ -33,6 +34,7 @@
   --red-bg: rgba(184, 92, 92, 0.10);
   --radius: 14px;
   --radius-sm: 10px;
+  --spring-ease: cubic-bezier(0.175, 0.885, 0.32, 1.1);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -60,7 +62,7 @@ body { position: relative; }
 .screen-main {
   min-height: 100vh;
   padding: calc(var(--safe-top) + 16px) 16px calc(var(--safe-bottom) + 90px);
-  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.35s ease;
+  transition: transform 0.35s var(--spring-ease), opacity 0.35s ease;
   will-change: transform, opacity;
 }
 
@@ -74,6 +76,32 @@ body { position: relative; }
 .brand {
   text-align: center;
   padding: 20px 0 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(212, 175, 106, 0.06) 0deg,
+    rgba(17, 17, 17, 0) 60deg,
+    rgba(212, 175, 106, 0.04) 120deg,
+    rgba(17, 17, 17, 0) 180deg,
+    rgba(212, 175, 106, 0.06) 240deg,
+    rgba(17, 17, 17, 0) 300deg,
+    rgba(212, 175, 106, 0.06) 360deg
+  );
+  animation: brandGradientSpin 20s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes brandGradientSpin {
+  to { transform: rotate(360deg); }
 }
 
 .brand h1 {
@@ -82,6 +110,8 @@ body { position: relative; }
   letter-spacing: 0.15em;
   color: var(--gold);
   font-weight: 400;
+  position: relative;
+  z-index: 1;
 }
 
 .brand p {
@@ -90,6 +120,8 @@ body { position: relative; }
   letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-top: 2px;
+  position: relative;
+  z-index: 1;
 }
 
 .brand .tagline {
@@ -138,18 +170,25 @@ body { position: relative; }
 /* ---- Help Me Decide Card ---- */
 .decide-card {
   background: var(--card);
-  border: 1px solid rgba(196, 162, 101, 0.25);
+  border: 1px solid rgba(212, 175, 106, 0.25);
   border-radius: var(--radius);
   padding: 20px;
-  margin: 0 0 24px;
+  margin: 0 0 16px;
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
   user-select: none;
+  animation: cardFloat 4s ease-in-out infinite;
 }
 
 .decide-card:active {
+  animation: none;
   transform: scale(0.98);
   background: var(--card-hover);
+}
+
+@keyframes cardFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 .decide-card-top {
@@ -226,15 +265,41 @@ body { position: relative; }
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s, box-shadow 0.3s;
   user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+.qf-pill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 40px;
+  opacity: 0;
+  box-shadow: 0 0 20px var(--gold-glow), inset 0 0 20px rgba(212, 175, 106, 0.08);
+  transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 .qf-pill:active {
   transform: scale(0.95);
   background: var(--card-hover);
   border-color: var(--gold);
 }
+.qf-pill:active::after { opacity: 1; }
 .qf-pill .qf-icon { font-size: 1rem; line-height: 1; }
+.pill-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--gold-glow);
+  width: 10px; height: 10px;
+  margin-left: -5px; margin-top: -5px;
+  transform: scale(0);
+  animation: pillRipple 0.5s ease forwards;
+  pointer-events: none;
+}
+@keyframes pillRipple {
+  to { transform: scale(6); opacity: 0; }
+}
 
 /* ---- Browse Restaurants Overlay (I Know My Spot) ---- */
 .screen-browse {
@@ -244,7 +309,7 @@ body { position: relative; }
   background: var(--bg);
   z-index: 90;
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 0.4s var(--spring-ease);
   will-change: transform;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -370,7 +435,7 @@ body { position: relative; }
   transition: background 0.15s;
 }
 .location-bar .loc-change:active {
-  background: rgba(196, 162, 101, 0.1);
+  background: rgba(212, 175, 106, 0.1);
 }
 
 /* ---- Price Badge (Quick & Cheap mode) ---- */
@@ -451,7 +516,7 @@ body { position: relative; }
   background: var(--bg);
   z-index: 100;
   transform: translateX(100%);
-  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 0.35s var(--spring-ease);
   will-change: transform;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -578,7 +643,7 @@ body { position: relative; }
   background: var(--bg);
   z-index: 150;
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 0.4s var(--spring-ease);
   will-change: transform;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -858,32 +923,299 @@ body { position: relative; }
   padding: 3px 8px;
 }
 
-/* ---- CTA Footer ---- */
-.cta-footer {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  z-index: 90;
-  padding: 12px 16px calc(var(--safe-bottom) + 12px);
-  background: linear-gradient(to top, var(--bg) 60%, transparent);
+/* ---- Result Slide-Up Animation ---- */
+@keyframes resultSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+.result-wrap { animation: resultSlideUp 0.4s var(--spring-ease) forwards; }
 
-.cta-btn {
-  display: block;
+/* ---- Swipe Card Engine ---- */
+.swipe-card-container {
+  position: relative;
   width: 100%;
-  padding: 16px;
-  background: var(--gold);
-  color: #111;
-  text-align: center;
-  text-decoration: none;
-  border-radius: var(--radius);
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  transition: opacity 0.15s, transform 0.1s;
+  min-height: 220px;
+  overflow: visible;
+  perspective: 800px;
 }
 
-.cta-btn:active { transform: scale(0.98); opacity: 0.9; }
+.swipe-card {
+  position: relative;
+  width: 100%;
+  will-change: transform;
+  touch-action: pan-y;
+  cursor: grab;
+  transition: transform 0.35s var(--spring-ease), opacity 0.35s ease;
+}
+
+.swipe-card.dragging {
+  transition: none;
+  cursor: grabbing;
+}
+
+.swipe-card.exit-left {
+  transform: translateX(-120%) rotate(-8deg);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.swipe-card.exit-right {
+  transform: translateX(120%) rotate(8deg);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  pointer-events: none;
+}
+
+@keyframes swipeEnterFromRight {
+  from { transform: translateX(60px) rotate(2deg); opacity: 0; }
+  to { transform: translateX(0) rotate(0); opacity: 1; }
+}
+.swipe-card.enter-from-right {
+  animation: swipeEnterFromRight 0.35s var(--spring-ease) forwards;
+}
+
+.swipe-hint {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  opacity: 0.7;
+  letter-spacing: 0.03em;
+}
+
+.swipe-counter {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+  letter-spacing: 0.04em;
+}
+
+.swipe-dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 6px;
+}
+.swipe-dots .s-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(212, 175, 106, 0.2);
+  transition: background 0.2s, transform 0.2s;
+}
+.swipe-dots .s-dot.active {
+  background: var(--gold);
+  transform: scale(1.3);
+}
+
+/* ---- I Ate Bad Button ---- */
+.iatebad-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 18px;
+  margin: 0 0 16px;
+  background: rgba(212, 175, 106, 0.06);
+  border: 1.5px solid rgba(212, 175, 106, 0.2);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text);
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, background 0.3s, transform 0.15s var(--spring-ease);
+}
+.iatebad-btn:active {
+  transform: scale(0.98);
+  border-color: var(--gold);
+  background: rgba(212, 175, 106, 0.12);
+}
+.iatebad-icon { font-size: 1.3rem; }
+.iatebad-text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.iatebad-sub {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 1px;
+}
+
+/* ---- I Ate Bad Overlay ---- */
+.screen-iatebad {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  transform: translateY(100%);
+  transition: transform 0.5s var(--spring-ease);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: calc(var(--safe-top) + 12px) 20px calc(var(--safe-bottom) + 20px);
+}
+.screen-iatebad.active { transform: translateY(0); }
+
+.iatebad-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.iatebad-close {
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+.iatebad-close:active { background: rgba(255,255,255,0.08); }
+.iatebad-close svg { width: 22px; height: 22px; display: block; }
+
+.iatebad-body {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Phase 1: Hug moment */
+.iatebad-hug {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  position: relative;
+}
+
+.hug-glow-bg {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 300px; height: 300px;
+  transform: translate(-50%, -60%);
+  background: radial-gradient(circle, rgba(212, 175, 106, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: hugGlowPulse 3s ease-in-out infinite;
+}
+@keyframes hugGlowPulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -60%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -60%) scale(1.15); }
+}
+
+.hug-quote {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.5rem;
+  color: var(--gold);
+  line-height: 1.4;
+  max-width: 320px;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: scale(0.9);
+  animation: hugQuoteFadeIn 0.8s ease forwards 0.4s;
+}
+@keyframes hugQuoteFadeIn {
+  to { opacity: 1; transform: scale(1); }
+}
+
+.hug-sub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 16px;
+  opacity: 0;
+  animation: hugQuoteFadeIn 0.6s ease forwards 1.2s;
+  position: relative;
+  z-index: 1;
+}
+
+/* Phase 2: Paths slide up */
+.iatebad-paths {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 32px;
+  width: 100%;
+  max-width: 340px;
+  position: relative;
+  z-index: 1;
+}
+
+.iatebad-path-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid rgba(212, 175, 106, 0.12);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text);
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s var(--spring-ease);
+  opacity: 0;
+  transform: translateY(16px);
+}
+.iatebad-path-btn:nth-child(1) { animation: pathSlideUp 0.5s var(--spring-ease) forwards 2.0s; }
+.iatebad-path-btn:nth-child(2) { animation: pathSlideUp 0.5s var(--spring-ease) forwards 2.15s; }
+.iatebad-path-btn:nth-child(3) { animation: pathSlideUp 0.5s var(--spring-ease) forwards 2.3s; }
+
+@keyframes pathSlideUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.iatebad-path-btn:active {
+  transform: scale(0.98) !important;
+  border-color: var(--gold);
+  background: var(--card-hover);
+}
+
+.path-emoji { font-size: 1.5rem; }
+.path-info { flex: 1; }
+.path-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.path-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Phase 3: Cards view */
+.iatebad-cards-view { animation: resultSlideUp 0.4s var(--spring-ease) forwards; }
+
+.iatebad-coach-line {
+  font-family: 'DM Serif Display', serif;
+  font-size: 0.88rem;
+  color: var(--gold);
+  text-align: center;
+  font-style: italic;
+  margin-bottom: 16px;
+  opacity: 0.85;
+}
+
+.iatebad-back-link {
+  display: block;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 8px;
+  transition: color 0.2s;
+}
+.iatebad-back-link:active { color: var(--gold); }
 
 @media (min-width: 500px) {
   .grid { grid-template-columns: repeat(3, 1fr); }
@@ -920,6 +1252,15 @@ body { position: relative; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
       </div>
     </div>
+
+    <!-- I Ate Bad Recovery -->
+    <button class="iatebad-btn" id="iateBadBtn">
+      <span class="iatebad-icon">💛</span>
+      <div>
+        <span class="iatebad-text">I Ate Bad</span>
+        <span class="iatebad-sub">Recovery Mode</span>
+      </div>
+    </button>
 
     <div class="location-bar" id="locationBar">
       <span class="loc-icon">📍</span>
@@ -979,6 +1320,16 @@ body { position: relative; }
       </div>
       <div class="browse-grid" id="browseGrid"></div>
     </div>
+  </div>
+
+  <!-- I Ate Bad Recovery Overlay -->
+  <div class="screen-iatebad" id="screenIateBad">
+    <div class="iatebad-header">
+      <button class="iatebad-close" id="iateBadClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
+    </div>
+    <div class="iatebad-body" id="iateBadBody"></div>
   </div>
 
 </div>
@@ -3288,6 +3639,48 @@ const vibeOptions = {
   ]
 };
 
+// ============================================================
+// "I ATE BAD" RECOVERY DATA
+// ============================================================
+const recoveryQuotes = [
+  "One bad meal doesn't erase 3 good weeks.",
+  "You didn't fail. You just had Tuesday.",
+  "Progress isn't perfection. You're still in the game.",
+  "Every champion has off-days. Let's bounce back.",
+  "Slip-ups don't define you. Your next meal does."
+];
+
+const recoveryPaths = {
+  fastfood: [
+    { name: "Chick-fil-A Grilled Nuggets (12ct)", protein: "38g", desc: "Lean, clean, and you can grab them in under 5 minutes.", tip: "Pair with a side salad instead of fries for maximum bounce-back energy." },
+    { name: "Wendy's Grilled Chicken Sandwich", protein: "34g", desc: "Hold the mayo, add extra lettuce and tomato. Solid recovery meal.", tip: "Skip the combo — you don't need the fries today. Just the sandwich." },
+    { name: "McDonald's McChicken Patties (2)", protein: "28g", desc: "Order two grilled patties à la carte. Simple, cheap, effective.", tip: "No bun, just the patties with a side salad. Recovery mode activated." },
+    { name: "Subway Rotisserie Chicken Salad", protein: "40g", desc: "Load it up with veggies and skip the dressing or go light vinaigrette.", tip: "Double the chicken for only a couple bucks more. Worth it." },
+    { name: "Popeyes Blackened Chicken Tenders", protein: "36g", desc: "The blackened tenders are the secret menu move. Way less grease.", tip: "Not every location has them — ask first. If not, go grilled nuggets nearby." }
+  ],
+  homemeal: [
+    { name: "Eggs + Turkey Sausage", protein: "35g", desc: "3 eggs scrambled with 2 turkey sausage links. Done in 8 minutes.", tip: "Add hot sauce and spinach. You won't even remember yesterday." },
+    { name: "Tuna + Crackers", protein: "30g", desc: "One can of tuna, dash of mustard, on whole grain crackers.", tip: "Mix in some diced pickles for crunch. Zero guilt." },
+    { name: "Greek Yogurt + Protein Powder", protein: "38g", desc: "Fage 0% with a scoop of vanilla protein. Stir until smooth.", tip: "Add a handful of berries. Feels like dessert, works like recovery." },
+    { name: "Turkey Rollups + Almonds", protein: "32g", desc: "Deli turkey wrapped around cheese sticks. Handful of almonds on the side.", tip: "Keep these prepped in the fridge for moments exactly like this." },
+    { name: "Chicken Thighs + Hot Sauce", protein: "36g", desc: "Bake 2 chicken thighs with your favorite seasoning. 20 min at 425°F.", tip: "Batch cook these on Sunday and you'll always have a recovery meal ready." }
+  ],
+  shake: [
+    { name: "Core Power Elite Chocolate", protein: "42g", desc: "Grab from any gas station or grocery store. Tastes like a milkshake.", tip: "Keep one in the fridge at all times. Your emergency protein button." },
+    { name: "Premier Protein Caramel", protein: "30g", desc: "Sweet, creamy, and only 160 calories. Available everywhere.", tip: "Pour over ice for maximum treat vibes. You earned it." },
+    { name: "Fairlife Chocolate Milk", protein: "30g", desc: "Filtered milk, extra protein, no lactose. Comfort in a bottle.", tip: "The strawberry flavor is underrated. Try it next time." },
+    { name: "Built Bar + String Cheese", protein: "27g", desc: "Built Bar (any flavor) + one string cheese. Purse snack energy.", tip: "Keep a Built Bar in your bag. Future you will say thank you." }
+  ]
+};
+
+const recoveryCoachLines = [
+  "This right here? This is what winners do.",
+  "One smart meal and you're back on track.",
+  "You showed up. That's the whole game.",
+  "Bounce-back meals hit different. Let's go.",
+  "The comeback is always stronger than the setback."
+];
+
 // Find restaurants matching the decision flow
 function findMatches(mealType, time, vibe) {
   return restaurants.filter(r =>
@@ -3345,6 +3738,97 @@ let userLocation = "anywhere"; // "anywhere" or "montgomery"
 function isAvailable(r) {
   if (userLocation === "montgomery") return true;
   return !r.local;
+}
+
+// ============================================================
+// RIPPLE EFFECT
+// ============================================================
+function createRipple(element, event) {
+  const existing = element.querySelector('.pill-ripple');
+  if (existing) existing.remove();
+  const ripple = document.createElement('span');
+  ripple.classList.add('pill-ripple');
+  const rect = element.getBoundingClientRect();
+  const x = (event.touches ? event.touches[0].clientX : event.clientX) - rect.left;
+  const y = (event.touches ? event.touches[0].clientY : event.clientY) - rect.top;
+  ripple.style.left = x + 'px';
+  ripple.style.top = y + 'px';
+  element.appendChild(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove());
+}
+
+// Attach ripple to pills, option buttons, decide card
+document.addEventListener('touchstart', (e) => {
+  const pill = e.target.closest('.qf-pill');
+  if (pill) { createRipple(pill, e); return; }
+  const opt = e.target.closest('.step-option');
+  if (opt) { createRipple(opt, e); return; }
+}, { passive: true });
+
+// ============================================================
+// SWIPE CARD ENGINE
+// ============================================================
+function initSwipeCard(containerEl, { onSwipeLeft, onSwipeRight }) {
+  const card = containerEl.querySelector('.swipe-card');
+  if (!card) return;
+  let startX = 0, startY = 0, deltaX = 0, isDragging = false, isHorizontal = null;
+
+  card.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    deltaX = 0;
+    isDragging = true;
+    isHorizontal = null;
+    card.classList.add('dragging');
+  }, { passive: true });
+
+  card.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    // Determine swipe direction on first significant movement
+    if (isHorizontal === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      isHorizontal = Math.abs(dx) > Math.abs(dy) * 1.3;
+    }
+    if (!isHorizontal) return; // let vertical scroll happen
+    e.preventDefault();
+    deltaX = dx;
+    const rotation = deltaX * 0.04;
+    const opacity = Math.max(0.5, 1 - Math.abs(deltaX) / 300);
+    card.style.transform = `translateX(${deltaX}px) rotate(${rotation}deg)`;
+    card.style.opacity = opacity;
+  }, { passive: false });
+
+  card.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    card.classList.remove('dragging');
+    if (isHorizontal && Math.abs(deltaX) > 80) {
+      // Threshold met — animate off screen
+      if (deltaX < 0) {
+        card.classList.add('exit-left');
+        setTimeout(() => onSwipeLeft(), 280);
+      } else {
+        card.classList.add('exit-right');
+        setTimeout(() => onSwipeRight(), 280);
+      }
+    } else {
+      // Snap back
+      card.style.transform = '';
+      card.style.opacity = '';
+    }
+  });
+}
+
+function renderSwipeCounter(current, total) {
+  let dots = '';
+  for (let i = 0; i < total; i++) {
+    dots += `<div class="s-dot${i === current ? ' active' : ''}"></div>`;
+  }
+  return `
+    <div class="swipe-counter">${current + 1} of ${total}</div>
+    <div class="swipe-dots">${dots}</div>
+    <div class="swipe-hint">← swipe left for next · swipe right to pick →</div>`;
 }
 
 // ============================================================
@@ -3571,21 +4055,35 @@ function renderResult() {
   decideBody.innerHTML = `
     <div class="result-wrap">
       <div class="result-label">Your RIVEN Pick</div>
-      <div class="result-restaurant">${pick.emoji} ${pick.name}</div>
-      <div class="result-category">${pick.category}</div>
-      <div class="result-card">
-        <div class="order-item-name">${item.name}</div>
-        <div class="protein-badge">${item.protein} protein</div>
-        <div class="order-desc">${item.desc}</div>
-        <div class="coach-tip">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
-          <p>${item.tip}</p>
+      <div class="swipe-card-container" id="resultSwipeContainer">
+        <div class="swipe-card enter-from-right">
+          <div class="result-restaurant">${pick.emoji} ${pick.name}</div>
+          <div class="result-category">${pick.category}</div>
+          <div class="result-card">
+            <div class="order-item-name">${item.name}</div>
+            <div class="protein-badge">${item.protein} protein</div>
+            <div class="order-desc">${item.desc}</div>
+            <div class="coach-tip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+              <p>${item.tip}</p>
+            </div>
+          </div>
         </div>
       </div>
+      ${hasMore ? renderSwipeCounter(dPickIndex, matches.length) : ''}
       <button class="result-done-btn" id="resultDone">Got It</button>
-      ${hasMore ? `<button class="result-alt-btn" id="showAlts">show me another option</button>` : ''}
       <button class="result-alt-btn" id="resultRetry" style="text-decoration:none;color:var(--text-muted);opacity:0.7;">Start Over</button>
     </div>`;
+
+  // Init swipe if multiple options
+  if (hasMore) {
+    const container = document.getElementById('resultSwipeContainer');
+    initSwipeCard(container, {
+      onSwipeLeft: () => { dPickIndex++; renderResult(); },
+      onSwipeRight: () => { closeDecide(); }
+    });
+  }
+  screenDecide.scrollTo(0, 0);
 }
 
 // Decision flow event delegation
@@ -3602,17 +4100,6 @@ decideBody.addEventListener('click', (e) => {
 
   if (e.target.id === 'resultDone') {
     closeDecide();
-    return;
-  }
-
-  if (e.target.id === 'showAlts') {
-    if (qfMode) {
-      qfPickIndex++;
-      renderQuickFilterResult();
-    } else {
-      dPickIndex++;
-      renderResult();
-    }
     return;
   }
 
@@ -3760,22 +4247,35 @@ function renderQuickFilterResult() {
   decideBody.innerHTML = `
     <div class="result-wrap">
       <div class="result-label">Your RIVEN Pick</div>
-      <div class="result-restaurant">${pick.emoji} ${pick.name}</div>
-      <div class="result-category">${pick.category}</div>
-      <div class="result-card">
-        <div class="order-item-name">${item.name}</div>
-        ${badgeHtml}
-        <div class="order-desc">${item.desc}</div>
-        <div class="coach-tip">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
-          <p>${item.tip}</p>
+      <div class="swipe-card-container" id="qfSwipeContainer">
+        <div class="swipe-card enter-from-right">
+          <div class="result-restaurant">${pick.emoji} ${pick.name}</div>
+          <div class="result-category">${pick.category}</div>
+          <div class="result-card">
+            <div class="order-item-name">${item.name}</div>
+            ${badgeHtml}
+            <div class="order-desc">${item.desc}</div>
+            <div class="coach-tip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+              <p>${item.tip}</p>
+            </div>
+            ${kidOrderHtml}
+          </div>
         </div>
-        ${kidOrderHtml}
       </div>
+      ${hasMore ? renderSwipeCounter(qfPickIndex, qfMatches.length) : ''}
       <button class="result-done-btn" id="resultDone">Got It</button>
-      ${hasMore ? '<button class="result-alt-btn" id="showAlts">show me another option</button>' : ''}
       <button class="result-alt-btn" id="resultRetry" style="text-decoration:none;color:var(--text-muted);opacity:0.7;">Close</button>
     </div>`;
+
+  // Init swipe if multiple options
+  if (hasMore) {
+    const container = document.getElementById('qfSwipeContainer');
+    initSwipeCard(container, {
+      onSwipeLeft: () => { qfPickIndex++; renderQuickFilterResult(); },
+      onSwipeRight: () => { closeDecide(); }
+    });
+  }
   screenDecide.scrollTo(0, 0);
 }
 
@@ -3833,6 +4333,125 @@ document.getElementById('quickFilters').addEventListener('click', (e) => {
   const pill = e.target.closest('.qf-pill');
   if (pill && pill.dataset.mode) openQuickFilter(pill.dataset.mode);
 });
+
+// ============================================================
+// "I ATE BAD" RECOVERY FEATURE
+// ============================================================
+const screenIateBad = document.getElementById('screenIateBad');
+const iateBadBody = document.getElementById('iateBadBody');
+let iateBadPath = null;
+let iateBadCardIndex = 0;
+
+function openIateBad() {
+  iateBadPath = null;
+  iateBadCardIndex = 0;
+  screenIateBad.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  renderIateBadHug();
+}
+
+function closeIateBad() {
+  screenIateBad.classList.remove('active');
+  document.body.style.overflow = '';
+  iateBadPath = null;
+  iateBadCardIndex = 0;
+}
+
+function renderIateBadHug() {
+  const quote = recoveryQuotes[Math.floor(Math.random() * recoveryQuotes.length)];
+  iateBadBody.innerHTML = `
+    <div class="iatebad-hug">
+      <div class="hug-glow-bg"></div>
+      <div class="hug-quote">${quote}</div>
+      <div class="hug-sub">You're here. That's what matters.</div>
+      <div class="iatebad-paths">
+        <button class="iatebad-path-btn" data-path="fastfood">
+          <span class="path-emoji">🚗</span>
+          <div class="path-info">
+            <div class="path-label">Fast Food Recovery</div>
+            <div class="path-sub">Grab something smart nearby</div>
+          </div>
+        </button>
+        <button class="iatebad-path-btn" data-path="homemeal">
+          <span class="path-emoji">🏠</span>
+          <div class="path-info">
+            <div class="path-label">Home Meal</div>
+            <div class="path-sub">Quick protein at home</div>
+          </div>
+        </button>
+        <button class="iatebad-path-btn" data-path="shake">
+          <span class="path-emoji">🥤</span>
+          <div class="path-info">
+            <div class="path-label">Grab a Shake</div>
+            <div class="path-sub">Easiest possible protein</div>
+          </div>
+        </button>
+      </div>
+    </div>`;
+}
+
+function renderIateBadCards() {
+  const items = recoveryPaths[iateBadPath];
+  if (!items || items.length === 0) return;
+  if (iateBadCardIndex >= items.length) iateBadCardIndex = 0;
+
+  const item = items[iateBadCardIndex];
+  const coachLine = recoveryCoachLines[Math.floor(Math.random() * recoveryCoachLines.length)];
+  const pathLabel = iateBadPath === 'fastfood' ? '🚗 Fast Food' : iateBadPath === 'homemeal' ? '🏠 Home Meal' : '🥤 Shake';
+
+  iateBadBody.innerHTML = `
+    <div class="iatebad-cards-view">
+      <div class="iatebad-coach-line">"${coachLine}"</div>
+      <div class="result-label" style="margin-bottom:12px;">${pathLabel} Recovery</div>
+      <div class="swipe-card-container" id="iateBadSwipeContainer">
+        <div class="swipe-card enter-from-right">
+          <div class="result-card">
+            <div class="order-item-name">${item.name}</div>
+            <div class="protein-badge">${item.protein} protein</div>
+            <div class="order-desc">${item.desc}</div>
+            <div class="coach-tip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+              <p>${item.tip}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      ${renderSwipeCounter(iateBadCardIndex, items.length)}
+      <button class="result-done-btn" id="iateBadGotIt">Got It</button>
+      <button class="iatebad-back-link" id="iateBadBackPaths">← Back to Paths</button>
+    </div>`;
+
+  // Init swipe
+  const container = document.getElementById('iateBadSwipeContainer');
+  initSwipeCard(container, {
+    onSwipeLeft: () => { iateBadCardIndex++; renderIateBadCards(); },
+    onSwipeRight: () => { closeIateBad(); }
+  });
+}
+
+// Event delegation for I Ate Bad overlay
+iateBadBody.addEventListener('click', (e) => {
+  const pathBtn = e.target.closest('.iatebad-path-btn');
+  if (pathBtn) {
+    iateBadPath = pathBtn.dataset.path;
+    iateBadCardIndex = 0;
+    renderIateBadCards();
+    return;
+  }
+  if (e.target.id === 'iateBadGotIt') {
+    closeIateBad();
+    return;
+  }
+  if (e.target.id === 'iateBadBackPaths') {
+    iateBadPath = null;
+    iateBadCardIndex = 0;
+    renderIateBadHug();
+    return;
+  }
+});
+
+document.getElementById('iateBadBtn').addEventListener('click', openIateBad);
+document.getElementById('iateBadClose').addEventListener('click', closeIateBad);
 
 // ============================================================
 // IP GEOLOCATION — auto-detect Montgomery, AL
